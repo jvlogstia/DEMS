@@ -1,0 +1,3313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rexus Group Security Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0a0e1a;
+            --secondary: #151925;
+            --accent: #1d4ed8;
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --gov-blue: #003366;
+            --gov-gold: #d4af37;
+            --critical: #8b0000;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .bg-gradient-security {
+            background: linear-gradient(135deg, #0a0e1a 0%, #151925 50%, #0a0e1a 100%);
+        }
+        
+        .bg-gradient-accent {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .security-border {
+            position: relative;
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .security-border::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(29, 78, 216, 0.4), transparent);
+            animation: scan 3s infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(29, 78, 216, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(29, 78, 216, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(29, 78, 216, 0); }
+        }
+        
+        .glow {
+            box-shadow: 0 0 15px rgba(29, 78, 216, 0.5);
+        }
+        
+        .role-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(29, 78, 216, 0.3);
+        }
+        
+        .role-card.selected {
+            border-color: var(--accent);
+            background-color: rgba(29, 78, 216, 0.1);
+        }
+        
+        .form-input {
+            background-color: rgba(21, 25, 37, 0.7);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.2);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 78, 216, 0.4);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 0 auto;
+        }
+        
+        .security-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(29, 78, 216, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(29, 78, 216, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning);
+        }
+        
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid var(--accent);
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 350px;
+        }
+        
+        .flash-message {
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            margin-bottom: 10px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .flash-message.show {
+            transform: translateX(0);
+        }
+        
+        .flash-message.success {
+            background-color: var(--success);
+        }
+        
+        .flash-message.error {
+            background-color: var(--danger);
+        }
+        
+        .flash-message.warning {
+            background-color: var(--warning);
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse-slow 4s infinite;
+        }
+        
+        @keyframes pulse-slow {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
+        .logo {
+            width: 120px;
+            height: 60px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        /* Government Security Styles */
+        .gov-header {
+            background-color: var(--gov-blue);
+            color: white;
+            padding: 8px 0;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--gov-gold);
+        }
+        
+        .security-level-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+            border: 1px solid;
+        }
+        
+        .security-level-top-secret {
+            background-color: rgba(220, 38, 38, 0.2);
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+        
+        .security-level-secret {
+            background-color: rgba(29, 78, 216, 0.2);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .security-level-confidential {
+            background-color: rgba(217, 119, 6, 0.2);
+            color: var(--warning);
+            border-color: var(--warning);
+        }
+        
+        .biometric-scanner {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(29, 78, 216, 0.2) 0%, rgba(29, 78, 216, 0.05) 70%);
+            margin: 0 auto 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(29, 78, 216, 0.3);
+        }
+        
+        .biometric-scanner::before {
+            content: '';
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 2px solid rgba(29, 78, 216, 0.5);
+            animation: biometric-pulse 2s infinite;
+        }
+        
+        @keyframes biometric-pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+        
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(21, 25, 37, 0.8);
+            border: 1px solid rgba(29, 78, 216, 0.5);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0 4px;
+        }
+        
+        .security-badge i {
+            margin-right: 4px;
+            color: var(--gov-gold);
+        }
+        
+        .mfa-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background-color: rgba(21, 25, 37, 0.5);
+        }
+        
+        .mfa-option:hover {
+            background-color: rgba(29, 78, 216, 0.1);
+            border-color: rgba(29, 78, 216, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .mfa-option.selected {
+            background-color: rgba(29, 78, 216, 0.2);
+            border-color: var(--accent);
+        }
+        
+        .mfa-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .mfa-option.disabled:hover {
+            transform: none;
+            background-color: rgba(21, 25, 37, 0.5);
+            border-color: rgba(29, 78, 216, 0.3);
+        }
+        
+        .security-question {
+            background-color: rgba(21, 25, 37, 0.5);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .device-card {
+            background-color: rgba(21, 25, 37, 0.5);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .device-card:hover {
+            background-color: rgba(29, 78, 216, 0.1);
+            border-color: rgba(29, 78, 216, 0.5);
+        }
+        
+        .device-card.trusted {
+            border-left: 4px solid var(--success);
+        }
+        
+        .device-card.untrusted {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .session-timer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(21, 25, 37, 0.9);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 14px;
+            z-index: 100;
+            display: none;
+        }
+        
+        .session-timer.warning {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+        
+        .session-timer.danger {
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: pulse 1s infinite;
+        }
+        
+        .security-checklist {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .security-checklist li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(29, 78, 216, 0.1);
+        }
+        
+        .security-checklist li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .security-checklist i {
+            margin-right: 12px;
+            font-size: 16px;
+        }
+        
+        .security-checklist i.fa-check-circle {
+            color: var(--success);
+        }
+        
+        .security-checklist i.fa-times-circle {
+            color: var(--danger);
+        }
+        
+        .security-checklist i.fa-exclamation-circle {
+            color: var(--warning);
+        }
+        
+        .encryption-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(21, 25, 37, 0.9);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 14px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+        }
+        
+        .encryption-indicator i {
+            margin-right: 8px;
+            color: var(--success);
+        }
+        
+        .security-footer {
+            background-color: var(--gov-blue);
+            color: white;
+            padding: 16px 0;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            letter-spacing: 1px;
+            border-top: 2px solid var(--gov-gold);
+            margin-top: 40px;
+        }
+        
+        .gov-seal {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid var(--gov-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            background-color: rgba(21, 25, 37, 0.8);
+        }
+        
+        .gov-seal i {
+            font-size: 36px;
+            color: var(--gov-gold);
+        }
+        
+        .security-banner {
+            background: linear-gradient(90deg, var(--gov-blue), var(--accent));
+            color: white;
+            padding: 12px 0;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            border-radius: 4px;
+        }
+        
+        .security-banner i {
+            margin-right: 8px;
+            color: var(--gov-gold);
+        }
+        
+        .security-key-scanner {
+            width: 200px;
+            height: 200px;
+            border-radius: 8px;
+            background: radial-gradient(circle, rgba(29, 78, 216, 0.2) 0%, rgba(29, 78, 216, 0.05) 70%);
+            margin: 0 auto 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(29, 78, 216, 0.3);
+        }
+        
+        .security-key-scanner::before {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 8px;
+            border: 2px solid rgba(29, 78, 216, 0.5);
+            animation: security-key-pulse 2s infinite;
+        }
+        
+        @keyframes security-key-pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+        
+        .security-log {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .security-log-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(29, 78, 216, 0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .security-log-item:last-child {
+            border-bottom: none;
+        }
+        
+        .security-log-item.success {
+            border-left: 3px solid var(--success);
+        }
+        
+        .security-log-item.warning {
+            border-left: 3px solid var(--warning);
+        }
+        
+        .security-log-item.danger {
+            border-left: 3px solid var(--danger);
+        }
+        
+        .security-log-time {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .security-log-action {
+            font-weight: 500;
+        }
+        
+        .security-log-location {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .security-log-ip {
+            font-size: 12px;
+            color: #9ca3af;
+            font-family: monospace;
+        }
+        
+        .security-log-device {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        
+        .security-log-status {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .security-log-status.success {
+            color: var(--success);
+        }
+        
+        .security-log-status.warning {
+            color: var(--warning);
+        }
+        
+        .security-log-status.danger {
+            color: var(--danger);
+        }
+        
+        .device-fingerprint {
+            background-color: rgba(21, 25, 37, 0.5);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .device-fingerprint-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+        
+        .device-fingerprint-value {
+            font-family: monospace;
+            font-size: 14px;
+            color: #9ca3af;
+            word-break: break-all;
+        }
+        
+        .ip-restriction {
+            background-color: rgba(21, 25, 37, 0.5);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .ip-restriction-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+        
+        .ip-restriction-value {
+            font-family: monospace;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .session-extension {
+            background-color: rgba(21, 25, 37, 0.5);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .session-extension-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+        
+        .session-extension-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .session-extension-button {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .session-extension-button.primary {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .session-extension-button.primary:hover {
+            background-color: #1e40af;
+        }
+        
+        .session-extension-button.secondary {
+            background-color: rgba(29, 78, 216, 0.2);
+            color: white;
+        }
+        
+        .session-extension-button.secondary:hover {
+            background-color: rgba(29, 78, 216, 0.3);
+        }
+        
+        .security-dashboard-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(29, 78, 216, 0.3);
+            margin-bottom: 20px;
+        }
+        
+        .security-dashboard-tab {
+            padding: 10px 20px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .security-dashboard-tab:hover {
+            color: var(--accent);
+        }
+        
+        .security-dashboard-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        
+        .security-dashboard-content {
+            display: none;
+        }
+        
+        .security-dashboard-content.active {
+            display: block;
+        }
+        
+        .security-settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(29, 78, 216, 0.1);
+        }
+        
+        .security-settings-item:last-child {
+            border-bottom: none;
+        }
+        
+        .security-settings-info {
+            flex: 1;
+        }
+        
+        .security-settings-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .security-settings-description {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .security-settings-action {
+            margin-left: 20px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(29, 78, 216, 0.3);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: var(--accent);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        .security-alert {
+            background-color: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .security-alert i {
+            color: var(--danger);
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .security-alert-content {
+            flex: 1;
+        }
+        
+        .security-alert-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--danger);
+        }
+        
+        .security-alert-message {
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+        
+        .security-alert-action {
+            margin-left: 15px;
+            font-weight: 500;
+            color: var(--accent);
+            cursor: pointer;
+        }
+        
+        .security-alert-action:hover {
+            text-decoration: underline;
+        }
+        
+        .mfa-enforcement {
+            background-color: rgba(29, 78, 216, 0.1);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .mfa-enforcement-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+        
+        .mfa-enforcement-description {
+            font-size: 14px;
+            color: #e2e8f0;
+            margin-bottom: 15px;
+        }
+        
+        .mfa-enforcement-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .mfa-enforcement-method {
+            display: flex;
+            align-items: center;
+            background-color: rgba(21, 25, 37, 0.7);
+            border: 1px solid rgba(29, 78, 216, 0.3);
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        .mfa-enforcement-method i {
+            margin-right: 8px;
+            color: var(--accent);
+        }
+        
+        .mfa-enforcement-required {
+            color: var(--danger);
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-security">
+    <div class="security-pattern"></div>
+
+    <!-- Flash Messages Container -->
+    <div class="flash-messages" id="flashMessages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}" id="flash-{{ loop.index }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
+    
+    <!-- Session Timer -->
+    <div id="sessionTimer" class="session-timer">
+        <i class="fas fa-clock mr-2"></i>
+        Session expires in: <span id="timeRemaining">15:00</span>
+    </div>
+    
+    <!-- Encryption Indicator -->
+    <div class="encryption-indicator">
+        <i class="fas fa-lock"></i>
+        <span>End-to-End Encryption Active</span>
+    </div>
+    
+    <!-- Authentication Forms -->
+    <div id="authContainer" class="min-h-screen flex items-center justify-center p-4">
+        <!-- Login Form -->
+        <div id="loginForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="logo animate-pulse-slow">
+                    <img src="/static/rexus_logo.png" alt="Rexus Group">
+                </div>
+               
+                <div class="gov-seal">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">REXUS GROUP</h1>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-top-secret">Welcomes You</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-exclamation-triangle"></i>
+                AUTHORIZED PERSONNEL ONLY
+            </div>
+            
+            <form id="loginFormElement" action="{{ url_for('login') }}" method="POST">
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="username">Security ID</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-id-badge"></i>
+                        </span>
+                        <input type="text" id="username" name="username" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Enter your Security ID" required>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2" for="password">Access Code</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="password" id="password" name="password" class="form-input w-full pl-10 pr-10 py-3 rounded-lg text-white" placeholder="Enter your Access Code" required>
+                        <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2">Security Clearance Level</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="role-card security-border p-3 rounded-lg text-center" data-role="LEGAL" tabindex="0" role="button" aria-label="Select Legal clearance">
+                            <i class="fas fa-balance-scale text-blue-400 text-xl mb-1"></i>
+                            <p class="text-sm">LEGAL</p>
+                        </div>
+                        <div class="role-card security-border p-3 rounded-lg text-center" data-role="DA/CA" tabindex="0" role="button" aria-label="Select DA/CA clearance">
+                            <i class="fas fa-coins text-yellow-400 text-xl mb-1"></i>
+                            <p class="text-sm">DA/CA</p>
+                        </div>
+                        <div class="role-card security-border p-3 rounded-lg text-center" data-role="Defense" tabindex="0" role="button" aria-label="Select Defense clearance">
+                            <i class="fas fa-shield-alt text-green-400 text-xl mb-1"></i>
+                            <p class="text-sm">Defense</p>
+                        </div>
+                        <div class="role-card security-border p-3 rounded-lg text-center" data-role="Admin" tabindex="0" role="button" aria-label="Select Admin clearance">
+                            <i class="fas fa-user-shield text-purple-400 text-xl mb-1"></i>
+                            <p class="text-sm">Admin</p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="selectedRole" name="role" required>
+                </div>
+                
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="remember" class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2">
+                        <label for="remember" class="ml-2 text-sm text-gray-300">Remember this terminal</label>
+                    </div>
+                    <a href="#" id="forgotPasswordLink" class="text-sm text-blue-400 hover:text-blue-300">Reset Access Code</a>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-medium text-white">
+                    <span id="loginButtonText">INITIATE AUTHENTICATION</span>
+                    <div id="loginSpinner" class="loading-spinner mx-auto hidden"></div>
+                </button>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-400">Need access credentials? <a href="#" id="signupLink" class="text-blue-400 hover:text-blue-300">Request Clearance</a></p>
+                </div>
+            </form>
+            
+            <div class="mt-8 pt-6 border-t border-gray-700 text-center">
+                <p class="text-xs text-gray-500">
+                    <span class="orbitron">© 2025 REXUS GROUP</span> | All Rights Reserved | <span class="orbitron">TOP SECRET</span>
+                </p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-badge"><i class="fas fa-certificate"></i> FIPS 140-2</span>
+                    <span class="security-badge"><i class="fas fa-shield-alt"></i> DOD 5220.22-M</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MFA Selection Form -->
+        <div id="mfaSelectionForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-shield-alt text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">MULTI-FACTOR AUTHENTICATION</h1>
+                <p class="text-gray-400">Select your verification method</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-secret">SECRET</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-fingerprint"></i>
+                ADDITIONAL VERIFICATION REQUIRED
+            </div>
+            
+            <div class="mb-6">
+                <div class="mfa-option" data-mfa="totp">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-mobile-alt text-blue-400 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Authenticator App</h3>
+                            <p class="text-sm text-gray-400">Use your authenticator app to generate a code</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="mfa-option" data-mfa="sms">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-sms text-green-400 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">SMS Verification</h3>
+                            <p class="text-sm text-gray-400">Receive a verification code via SMS</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="mfa-option" data-mfa="email">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-yellow-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-envelope text-yellow-400 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Email Verification</h3>
+                            <p class="text-sm text-gray-400">Receive a verification code via email</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="mfa-option" data-mfa="biometric">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-purple-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-fingerprint text-purple-400 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Biometric Verification</h3>
+                            <p class="text-sm text-gray-400">Use your fingerprint or face ID</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="mfa-option" data-mfa="hardware">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-red-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-usb text-red-400 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Hardware Token</h3>
+                            <p class="text-sm text-gray-400">Use your government-issued hardware token</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="mfa-option" data-mfa="security-key">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-indigo-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-key text-indigo-400 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Security Key</h3>
+                            <p class="text-sm text-gray-400">Use your FIDO2 security key</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <div class="mfa-option disabled" data-mfa="smartcard">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-500 bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-id-card text-gray-400 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Smart Card</h3>
+                            <p class="text-sm text-gray-400">Insert your government-issued smart card</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="backToLoginFromMfa" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                    CANCEL
+                </button>
+                <button id="proceedWithMfa" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white" disabled>
+                    PROCEED
+                </button>
+            </div>
+        </div>
+        
+        <!-- TOTP MFA Form -->
+        <div id="totpMfaForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-mobile-alt text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">AUTHENTICATOR APP</h1>
+                <p class="text-gray-400">Enter the verification code from your app</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-secret">SECRET</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-mobile-alt"></i>
+                AUTHENTICATOR VERIFICATION
+            </div>
+            
+            <div class="mb-6">
+                <div class="qr-code mx-auto mb-4">
+                    <img id="totpQrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=otpauth://totp/RexusGroup:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=RexusGroup" alt="QR Code">
+                </div>
+                <p class="text-center text-gray-400 text-sm mb-4">Or enter this code manually:</p>
+                <div class="bg-gray-800 p-3 rounded-lg text-center font-mono text-sm" id="totpSecret">
+                    JBSWY3DPEHPK3PXP
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-300 mb-2" for="totpCode">Verification Code</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fas fa-key"></i>
+                    </span>
+                    <input type="text" id="totpCode" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}" required>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="backToMfaSelection" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                    BACK
+                </button>
+                <button id="verifyTotp" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white">
+                    VERIFY
+                </button>
+            </div>
+        </div>
+        
+        <!-- SMS MFA Form -->
+        <div id="smsMfaForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-sms text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">SMS VERIFICATION</h1>
+                <p class="text-gray-400">Enter the code sent to your phone</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-secret">SECRET</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-sms"></i>
+                SMS VERIFICATION
+            </div>
+            
+            <div class="mb-6">
+                <div class="bg-gray-800 p-4 rounded-lg mb-4">
+                    <p class="text-center text-gray-400 mb-2">A verification code has been sent to:</p>
+                    <p class="text-center font-medium">•••• •••• •••• <span id="lastFourDigits">1234</span></p>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="smsCode">Verification Code</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="text" id="smsCode" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}" required>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button id="resendSmsCode" class="text-sm text-blue-400 hover:text-blue-300">Resend Code</button>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="backToMfaSelectionFromSms" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                    BACK
+                </button>
+                <button id="verifySms" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white">
+                    VERIFY
+                </button>
+            </div>
+        </div>
+        
+        <!-- Email MFA Form -->
+        <div id="emailMfaForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-envelope text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">EMAIL VERIFICATION</h1>
+                <p class="text-gray-400">Enter the code sent to your email</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-secret">SECRET</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-envelope"></i>
+                EMAIL VERIFICATION
+            </div>
+            
+            <div class="mb-6">
+                <div class="bg-gray-800 p-4 rounded-lg mb-4">
+                    <p class="text-center text-gray-400 mb-2">A verification code has been sent to:</p>
+                    <p class="text-center font-medium">u••••@••••••.•••</p>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="emailCode">Verification Code</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="text" id="emailCode" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}" required>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button id="resendEmailCode" class="text-sm text-blue-400 hover:text-blue-300">Resend Code</button>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="backToMfaSelectionFromEmail" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                    BACK
+                </button>
+                <button id="verifyEmail" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white">
+                    VERIFY
+                </button>
+            </div>
+        </div>
+        
+        <!-- Biometric MFA Form -->
+        <div id="biometricMfaForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-fingerprint text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">BIOMETRIC VERIFICATION</h1>
+                <p class="text-gray-400">Verify your identity with biometrics</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-secret">SECRET</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-fingerprint"></i>
+                BIOMETRIC AUTHENTICATION
+            </div>
+            
+            <div class="mb-8">
+                <div class="biometric-scanner">
+                    <i class="fas fa-fingerprint text-blue-400 text-4xl"></i>
+                </div>
+                <p class="text-center text-gray-400 mb-6">Place your finger on the scanner or look at the camera</p>
+                
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="security-border p-4 rounded-lg text-center cursor-pointer hover:bg-gray-800 biometric-method" data-method="fingerprint">
+                        <i class="fas fa-fingerprint text-blue-400 text-2xl mb-2"></i>
+                        <p class="font-medium">Fingerprint</p>
+                    </div>
+                    <div class="security-border p-4 rounded-lg text-center cursor-pointer hover:bg-gray-800 biometric-method" data-method="face">
+                        <i class="fas fa-user text-green-400 text-2xl mb-2"></i>
+                        <p class="font-medium">Face ID</p>
+                    </div>
+                </div>
+                
+                <div id="biometricStatus" class="text-center text-gray-400 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Select a biometric method to continue
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="backToMfaSelectionFromBiometric" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                    BACK
+                </button>
+                <button id="verifyBiometric" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white" disabled>
+                    VERIFY
+                </button>
+            </div>
+        </div>
+        
+        <!-- Hardware Token MFA Form -->
+        <div id="hardwareMfaForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-usb text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">HARDWARE TOKEN</h1>
+                <p class="text-gray-400">Enter the code from your hardware token</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-secret">SECRET</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-usb"></i>
+                HARDWARE TOKEN VERIFICATION
+            </div>
+            
+            <div class="mb-6">
+                <div class="bg-gray-800 p-4 rounded-lg mb-4">
+                    <p class="text-center text-gray-400 mb-2">Insert your hardware token and press the button</p>
+                    <p class="text-center font-medium">Token ID: HT-<span id="tokenId">12345678</span></p>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="hardwareCode">Verification Code</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="text" id="hardwareCode" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="backToMfaSelectionFromHardware" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                    BACK
+                </button>
+                <button id="verifyHardware" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white">
+                    VERIFY
+                </button>
+            </div>
+        </div>
+        
+        <!-- Security Key MFA Form -->
+        <div id="securityKeyMfaForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-key text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">SECURITY KEY</h1>
+                <p class="text-gray-400">Use your FIDO2 security key</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-secret">SECRET</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-key"></i>
+                FIDO2 SECURITY KEY VERIFICATION
+            </div>
+            
+            <div class="mb-8">
+                <div class="security-key-scanner">
+                    <i class="fas fa-usb text-indigo-400 text-4xl"></i>
+                </div>
+                <p class="text-center text-gray-400 mb-6">Insert your security key and touch it when prompted</p>
+                
+                <div class="bg-gray-800 p-4 rounded-lg mb-4">
+                    <p class="text-center text-gray-400 mb-2">Supported security keys:</p>
+                    <div class="flex justify-center space-x-4 mt-2">
+                        <i class="fab fa-yubikey text-2xl text-blue-400"></i>
+                        <i class="fas fa-usb text-2xl text-green-400"></i>
+                        <i class="fas fa-nfc text-2xl text-purple-400"></i>
+                    </div>
+                </div>
+                
+                <div id="securityKeyStatus" class="text-center text-gray-400 mb-6">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Waiting for security key...
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="backToMfaSelectionFromSecurityKey" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                    BACK
+                </button>
+                <button id="verifySecurityKey" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white">
+                    VERIFY
+                </button>
+            </div>
+        </div>
+        
+        <!-- Security Questions Form -->
+        <div id="securityQuestionsForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-question-circle text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">SECURITY QUESTIONS</h1>
+                <p class="text-gray-400">Answer your security questions</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-confidential">CONFIDENTIAL</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-question-circle"></i>
+                IDENTITY VERIFICATION
+            </div>
+            
+            <div class="mb-6">
+                <div class="security-question">
+                    <label class="block text-gray-300 mb-2">Question 1</label>
+                    <p class="font-medium mb-2">What was the name of your first pet?</p>
+                    <input type="text" class="form-input w-full py-2 px-3 rounded-lg text-white" placeholder="Your answer" required>
+                </div>
+                
+                <div class="security-question">
+                    <label class="block text-gray-300 mb-2">Question 2</label>
+                    <p class="font-medium mb-2">In what city were you born?</p>
+                    <input type="text" class="form-input w-full py-2 px-3 rounded-lg text-white" placeholder="Your answer" required>
+                </div>
+                
+                <div class="security-question">
+                    <label class="block text-gray-300 mb-2">Question 3</label>
+                    <p class="font-medium mb-2">What is your mother's maiden name?</p>
+                    <input type="text" class="form-input w-full py-2 px-3 rounded-lg text-white" placeholder="Your answer" required>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="backToMfaSelectionFromQuestions" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                    BACK
+                </button>
+                <button id="verifyQuestions" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white">
+                    VERIFY
+                </button>
+            </div>
+        </div>
+        
+        <!-- Device Recognition Form -->
+        <div id="deviceRecognitionForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-desktop text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">DEVICE RECOGNITION</h1>
+                <p class="text-gray-400">Verify this device for future access</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-confidential">CONFIDENTIAL</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-desktop"></i>
+                NEW DEVICE DETECTED
+            </div>
+            
+            <div class="mb-6">
+                <div class="device-card untrusted">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-medium">Current Device</h3>
+                        <span class="text-yellow-400 text-sm">New Device</span>
+                    </div>
+                    <p class="text-sm text-gray-400 mb-1">Chrome on Windows</p>
+                    <p class="text-xs text-gray-500">IP: 192.168.1.100 • Location: New York, USA</p>
+                </div>
+                
+                <div class="device-fingerprint">
+                    <div class="device-fingerprint-title">Device Fingerprint</div>
+                    <div class="device-fingerprint-value" id="deviceFingerprint">
+                        a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
+                    </div>
+                </div>
+                
+                <div class="ip-restriction">
+                    <div class="ip-restriction-title">IP Restriction</div>
+                    <div class="ip-restriction-value">
+                        Current IP: 192.168.1.100<br>
+                        Allowed Range: 192.168.1.0/24
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 p-4 rounded-lg mb-4">
+                    <p class="text-center text-gray-400 mb-2">To enhance security, we recommend:</p>
+                    <ul class="security-checklist">
+                        <li><i class="fas fa-check-circle"></i> Enable biometric authentication</li>
+                        <li><i class="fas fa-check-circle"></i> Add this device to your trusted list</li>
+                        <li><i class="fas fa-exclamation-circle"></i> Review recent account activity</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="trustDevice" class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2 mr-2">
+                        <span class="text-gray-300">Trust this device for future access</span>
+                    </label>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="enableBiometric" class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2 mr-2">
+                        <span class="text-gray-300">Enable biometric authentication for this device</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button id="backToMfaSelectionFromDevice" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                    BACK
+                </button>
+                <button id="verifyDevice" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white">
+                    CONTINUE
+                </button>
+            </div>
+        </div>
+        
+        <!-- Security Dashboard -->
+        <div id="securityDashboard" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-4xl w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-shield-alt text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">SECURITY DASHBOARD</h1>
+                <p class="text-gray-400">Manage your account security settings</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-top-secret">TOP SECRET</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-shield-alt"></i>
+                AUTHENTICATION COMPLETE - ACCESS GRANTED
+            </div>
+            
+            <div class="security-alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="security-alert-content">
+                    <div class="security-alert-title">Security Alert</div>
+                    <div class="security-alert-message">Unusual login activity detected from a new device</div>
+                </div>
+                <div class="security-alert-action">Review</div>
+            </div>
+            
+            <div class="security-dashboard-tabs">
+                <div class="security-dashboard-tab active" data-tab="overview">Overview</div>
+                <div class="security-dashboard-tab" data-tab="devices">Devices</div>
+                <div class="security-dashboard-tab" data-tab="activity">Activity</div>
+                <div class="security-dashboard-tab" data-tab="settings">Settings</div>
+            </div>
+            
+            <div id="overview-tab" class="security-dashboard-content active">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="security-border p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-green-400"></i>
+                            </div>
+                            <h3 class="text-lg font-medium">Account Security</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-400">Password</span>
+                                <span class="text-green-400"><i class="fas fa-check-circle mr-1"></i> Strong</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-400">Two-Factor Auth</span>
+                                <span class="text-green-400"><i class="fas fa-check-circle mr-1"></i> Enabled</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-400">Biometric Auth</span>
+                                <span class="text-green-400"><i class="fas fa-check-circle mr-1"></i> Enabled</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-400">Security Questions</span>
+                                <span class="text-green-400"><i class="fas fa-check-circle mr-1"></i> Set</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="security-border p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i class="fas fa-desktop text-blue-400"></i>
+                            </div>
+                            <h3 class="text-lg font-medium">Active Sessions</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="device-card trusted">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium">Chrome on Windows</p>
+                                        <p class="text-xs text-gray-400">New York, USA • Now</p>
+                                    </div>
+                                    <span class="text-green-400 text-sm">Current</span>
+                                </div>
+                            </div>
+                            <div class="device-card trusted">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium">Safari on iPhone</p>
+                                        <p class="text-xs text-gray-400">Boston, USA • 2 hours ago</p>
+                                    </div>
+                                    <button class="text-red-400 text-sm hover:text-red-300">Terminate</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="security-border p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-full bg-purple-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i class="fas fa-history text-purple-400"></i>
+                            </div>
+                            <h3 class="text-lg font-medium">Recent Activity</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="activity-item">
+                                <p class="text-sm">Successful login</p>
+                                <p class="text-xs text-gray-400">Today, 10:30 AM • New York, USA</p>
+                            </div>
+                            <div class="activity-item">
+                                <p class="text-sm">Password changed</p>
+                                <p class="text-xs text-gray-400">Yesterday, 3:45 PM • Boston, USA</p>
+                            </div>
+                            <div class="activity-item">
+                                <p class="text-sm">MFA enabled</p>
+                                <p class="text-xs text-gray-400">2 days ago • New York, USA</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="session-extension">
+                    <div class="session-extension-title">Session Management</div>
+                    <div class="text-gray-400 mb-2">Your session will expire in <span id="dashboardTimeRemaining">15:00</span></div>
+                    <div class="session-extension-buttons">
+                        <div class="session-extension-button primary" id="extendSession15">Extend 15 min</div>
+                        <div class="session-extension-button secondary" id="extendSession60">Extend 1 hour</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="devices-tab" class="security-dashboard-content">
+                <div class="security-border p-6 rounded-lg mb-8">
+                    <h3 class="text-lg font-medium mb-4">Trusted Devices</h3>
+                    <div class="space-y-4">
+                        <div class="device-card trusted">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Chrome on Windows</p>
+                                    <p class="text-sm text-gray-400">New York, USA • Last active: Now</p>
+                                    <p class="text-xs text-gray-500">IP: 192.168.1.100 • Device ID: D1A2B3C4</p>
+                                </div>
+                                <div>
+                                    <span class="text-green-400 text-sm">Current Device</span>
+                                    <button class="block text-red-400 text-sm hover:text-red-300 mt-1">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="device-card trusted">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Safari on iPhone</p>
+                                    <p class="text-sm text-gray-400">Boston, USA • Last active: 2 hours ago</p>
+                                    <p class="text-xs text-gray-500">IP: 192.168.1.105 • Device ID: E5F6G7H8</p>
+                                </div>
+                                <button class="text-red-400 text-sm hover:text-red-300">Remove</button>
+                            </div>
+                        </div>
+                        
+                        <div class="device-card trusted">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Firefox on macOS</p>
+                                    <p class="text-sm text-gray-400">Los Angeles, USA • Last active: 1 day ago</p>
+                                    <p class="text-xs text-gray-500">IP: 192.168.1.110 • Device ID: I9J0K1L2</p>
+                                </div>
+                                <button class="text-red-400 text-sm hover:text-red-300">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-border p-6 rounded-lg">
+                    <h3 class="text-lg font-medium mb-4">Device Management</h3>
+                    <div class="space-y-4">
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">Remember Devices</div>
+                                <div class="security-settings-description">Allow trusted devices to bypass MFA for 30 days</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">Device Notifications</div>
+                                <div class="security-settings-description">Get notified when a new device signs in to your account</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">Device Fingerprinting</div>
+                                <div class="security-settings-description">Use device fingerprinting for enhanced security</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="activity-tab" class="security-dashboard-content">
+                <div class="security-border p-6 rounded-lg mb-8">
+                    <h3 class="text-lg font-medium mb-4">Security Log</h3>
+                    <div class="security-log">
+                        <div class="security-log-item success">
+                            <div>
+                                <div class="security-log-action">Successful login</div>
+                                <div class="security-log-location">New York, USA</div>
+                                <div class="security-log-ip">192.168.1.100</div>
+                                <div class="security-log-device">Chrome on Windows</div>
+                            </div>
+                            <div>
+                                <div class="security-log-time">Today, 10:30 AM</div>
+                                <div class="security-log-status success">Success</div>
+                            </div>
+                        </div>
+                        
+                        <div class="security-log-item warning">
+                            <div>
+                                <div class="security-log-action">Failed login attempt</div>
+                                <div class="security-log-location">Unknown Location</div>
+                                <div class="security-log-ip">203.0.113.45</div>
+                                <div class="security-log-device">Unknown Browser</div>
+                            </div>
+                            <div>
+                                <div class="security-log-time">Today, 9:15 AM</div>
+                                <div class="security-log-status warning">Failed</div>
+                            </div>
+                        </div>
+                        
+                        <div class="security-log-item success">
+                            <div>
+                                <div class="security-log-action">Password changed</div>
+                                <div class="security-log-location">Boston, USA</div>
+                                <div class="security-log-ip">192.168.1.105</div>
+                                <div class="security-log-device">Safari on iPhone</div>
+                            </div>
+                            <div>
+                                <div class="security-log-time">Yesterday, 3:45 PM</div>
+                                <div class="security-log-status success">Success</div>
+                            </div>
+                        </div>
+                        
+                        <div class="security-log-item success">
+                            <div>
+                                <div class="security-log-action">MFA enabled</div>
+                                <div class="security-log-location">New York, USA</div>
+                                <div class="security-log-ip">192.168.1.100</div>
+                                <div class="security-log-device">Chrome on Windows</div>
+                            </div>
+                            <div>
+                                <div class="security-log-time">2 days ago</div>
+                                <div class="security-log-status success">Success</div>
+                            </div>
+                        </div>
+                        
+                        <div class="security-log-item danger">
+                            <div>
+                                <div class="security-log-action">Account locked</div>
+                                <div class="security-log-location">Unknown Location</div>
+                                <div class="security-log-ip">198.51.100.10</div>
+                                <div class="security-log-device">Unknown Browser</div>
+                            </div>
+                            <div>
+                                <div class="security-log-time">3 days ago</div>
+                                <div class="security-log-status danger">Blocked</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-border p-6 rounded-lg">
+                    <h3 class="text-lg font-medium mb-4">Export Security Log</h3>
+                    <p class="text-gray-400 mb-4">Download your security activity log for your records</p>
+                    <div class="flex space-x-3">
+                        <button class="btn-primary py-2 px-6 rounded-lg font-medium text-white">
+                            <i class="fas fa-download mr-2"></i> Download CSV
+                        </button>
+                        <button class="bg-gray-700 hover:bg-gray-600 py-2 px-6 rounded-lg font-medium text-white transition">
+                            <i class="fas fa-file-pdf mr-2"></i> Download PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="settings-tab" class="security-dashboard-content">
+                <div class="mfa-enforcement">
+                    <div class="mfa-enforcement-title">Multi-Factor Authentication</div>
+                    <div class="mfa-enforcement-description">
+                        Enhance your account security by enabling multiple verification methods
+                    </div>
+                    <div class="mfa-enforcement-methods">
+                        <div class="mfa-enforcement-method">
+                            <i class="fas fa-mobile-alt"></i> Authenticator App
+                        </div>
+                        <div class="mfa-enforcement-method">
+                            <i class="fas fa-sms"></i> SMS
+                        </div>
+                        <div class="mfa-enforcement-method">
+                            <i class="fas fa-envelope"></i> Email
+                        </div>
+                        <div class="mfa-enforcement-method">
+                            <i class="fas fa-fingerprint"></i> Biometric
+                        </div>
+                        <div class="mfa-enforcement-method">
+                            <i class="fas fa-usb"></i> Hardware Token
+                        </div>
+                        <div class="mfa-enforcement-method">
+                            <i class="fas fa-key"></i> Security Key
+                        </div>
+                        <span class="mfa-enforcement-required">Required</span>
+                    </div>
+                </div>
+                
+                <div class="security-border p-6 rounded-lg mb-8">
+                    <h3 class="text-lg font-medium mb-4">Security Settings</h3>
+                    <div class="space-y-4">
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">Two-Factor Authentication</div>
+                                <div class="security-settings-description">Add an extra layer of security to your account</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">Biometric Authentication</div>
+                                <div class="security-settings-description">Use fingerprint or face recognition to sign in</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">Security Questions</div>
+                                <div class="security-settings-description">Answer security questions to verify your identity</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">Login Alerts</div>
+                                <div class="security-settings-description">Get notified when someone signs in to your account</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">Session Timeout</div>
+                                <div class="security-settings-description">Automatically sign out after 15 minutes of inactivity</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">IP Restrictions</div>
+                                <div class="security-settings-description">Restrict access to specific IP addresses</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="security-settings-item">
+                            <div class="security-settings-info">
+                                <div class="security-settings-title">Device Fingerprinting</div>
+                                <div class="security-settings-description">Use device fingerprinting for enhanced security</div>
+                            </div>
+                            <div class="security-settings-action">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-4">
+                <button id="changePassword" class="btn-primary py-2 px-6 rounded-lg font-medium text-white">
+                    Change Password
+                </button>
+                <button id="manageDevices" class="bg-gray-700 hover:bg-gray-600 py-2 px-6 rounded-lg font-medium text-white transition">
+                    Manage Devices
+                </button>
+                <button id="viewActivity" class="bg-gray-700 hover:bg-gray-600 py-2 px-6 rounded-lg font-medium text-white transition">
+                    View Activity
+                </button>
+                <button id="continueToPortal" class="bg-green-600 hover:bg-green-500 py-2 px-6 rounded-lg font-medium text-white transition">
+                    Access Portal
+                </button>
+            </div>
+        </div>
+        
+        <!-- Signup Form -->
+        <div id="signupForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="gov-seal">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">REQUEST CLEARANCE</h1>
+                <p class="text-gray-400">Submit your access request</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-confidential">CONFIDENTIAL</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-user-plus"></i>
+                ACCESS REQUEST FORM
+            </div>
+            
+            <form id="signupFormElement" action="{{ url_for('signup') }}" method="POST">
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="signupUsername">Security ID</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-id-badge"></i>
+                        </span>
+                        <input type="text" id="signupUsername" name="username" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Choose a Security ID" required>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="signupEmail">Official Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" id="signupEmail" name="email" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Enter your official email" required>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="signupPhone">Secure Phone</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-phone"></i>
+                        </span>
+                        <input type="tel" id="signupPhone" name="phone" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Enter your secure phone number" required>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="signupPassword">Access Code</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="password" id="signupPassword" name="password" class="form-input w-full pl-10 pr-10 py-3 rounded-lg text-white" placeholder="Create a secure access code" required>
+                        <button type="button" id="toggleSignupPassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="mt-2">
+                        <div class="flex items-center text-xs text-gray-400 mb-1">
+                            <span id="passwordStrength">Access code strength</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-1.5">
+                            <div id="strengthBar" class="h-1.5 rounded-full bg-gray-700" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Security Questions</label>
+                    <div class="space-y-3">
+                        <div>
+                            <select class="form-input w-full py-2 px-3 rounded-lg text-white" required>
+                                <option value="">Select a security question</option>
+                                <option value="pet">What was the name of your first pet?</option>
+                                <option value="school">What elementary school did you attend?</option>
+                                <option value="city">In what city were you born?</option>
+                                <option value="mother">What is your mother's maiden name?</option>
+                            </select>
+                            <input type="text" class="form-input w-full mt-2 py-2 px-3 rounded-lg text-white" placeholder="Your answer" required>
+                        </div>
+                        <div>
+                            <select class="form-input w-full py-2 px-3 rounded-lg text-white" required>
+                                <option value="">Select a security question</option>
+                                <option value="car">What was the model of your first car?</option>
+                                <option value="friend">What is the name of your best friend from childhood?</option>
+                                <option value="teacher">Who was your favorite teacher?</option>
+                                <option value="vacation">What was your dream vacation as a child?</option>
+                            </select>
+                            <input type="text" class="form-input w-full mt-2 py-2 px-3 rounded-lg text-white" placeholder="Your answer" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2">Department</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="role-card security-border p-3 rounded-lg text-center" data-role="LEGAL" tabindex="0" role="button" aria-label="Select Legal department">
+                            <i class="fas fa-balance-scale text-blue-400 text-xl mb-1"></i>
+                            <p class="text-sm">LEGAL</p>
+                        </div>
+                        <div class="role-card security-border p-3 rounded-lg text-center" data-role="DA/CA" tabindex="0" role="button" aria-label="Select DA/CA department">
+                            <i class="fas fa-coins text-yellow-400 text-xl mb-1"></i>
+                            <p class="text-sm">DA/CA</p>
+                        </div>
+                        <div class="role-card security-border p-3 rounded-lg text-center" data-role="Defense" tabindex="0" role="button" aria-label="Select Defense department">
+                            <i class="fas fa-shield-alt text-green-400 text-xl mb-1"></i>
+                            <p class="text-sm">Defense</p>
+                        </div>
+                        <div class="role-card security-border p-3 rounded-lg text-center" data-role="Admin" tabindex="0" role="button" aria-label="Select Admin department">
+                            <i class="fas fa-user-shield text-purple-400 text-xl mb-1"></i>
+                            <p class="text-sm">Admin</p>
+                        </div>
+                    </div>
+                    <input type="hidden" id="selectedSignupRole" name="role" required>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input type="checkbox" id="terms" class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2" required>
+                        </div>
+                        <label for="terms" class="ml-2 text-sm text-gray-300">
+                            I agree to the <a href="#" class="text-blue-400 hover:text-blue-300">Terms of Service</a> and <a href="#" class="text-blue-400 hover:text-blue-300">Privacy Policy</a>
+                        </label>
+                    </div>
+                    <div class="flex items-start mt-2">
+                        <div class="flex items-center h-5">
+                            <input type="checkbox" id="mfaConsent" class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2" required>
+                        </div>
+                        <label for="mfaConsent" class="ml-2 text-sm text-gray-300">
+                            I consent to enable multi-factor authentication for enhanced security
+                        </label>
+                    </div>
+                    <div class="flex items-start mt-2">
+                        <div class="flex items-center h-5">
+                            <input type="checkbox" id="backgroundCheck" class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2" required>
+                        </div>
+                        <label for="backgroundCheck" class="ml-2 text-sm text-gray-300">
+                            I consent to a security background check
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full py-3 rounded-lg font-medium text-white">
+                    <span id="signupButtonText">SUBMIT REQUEST</span>
+                    <div id="signupSpinner" class="loading-spinner mx-auto hidden"></div>
+                </button>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-400">Already have clearance? <a href="#" id="loginLink" class="text-blue-400 hover:text-blue-300">Sign In</a></p>
+                </div>
+            </form>
+            
+            <div class="mt-8 pt-6 border-t border-gray-700 text-center">
+                <p class="text-xs text-gray-500">
+                    <span class="orbitron">© 2025 REXUS GROUP</span> | All Rights Reserved | <span class="orbitron">TOP SECRET</span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Forgot Password Form -->
+        <div id="forgotPasswordForm" class="security-border bg-secondary bg-opacity-70 backdrop-blur-lg p-8 rounded-xl shadow-2xl hidden max-w-md w-full">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-accent rounded-full mb-4">
+                    <i class="fas fa-key text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold orbitron text-gradient mb-2">RESET ACCESS CODE</h1>
+                <p class="text-gray-400">Verify your identity to reset your access code</p>
+                <div class="mt-2 flex justify-center">
+                    <span class="security-level-indicator security-level-confidential">CONFIDENTIAL</span>
+                </div>
+            </div>
+            
+            <div class="security-banner">
+                <i class="fas fa-key"></i>
+                ACCESS CODE RECOVERY
+            </div>
+            
+            <div id="forgotStep1">
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="forgotEmail">Official Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" id="forgotEmail" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Enter your official email" required>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2">Verification Method</label>
+                    <div class="space-y-3">
+                        <div class="security-border p-3 rounded-lg flex items-center cursor-pointer hover:bg-gray-800 glow" id="emailVerification" tabindex="0" role="button" aria-label="Select email verification">
+                            <div class="w-10 h-10 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i class="fas fa-envelope text-blue-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Email Verification</p>
+                                <p class="text-xs text-gray-400">Receive a verification code via email</p>
+                            </div>
+                            <div class="ml-auto">
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="security-border p-3 rounded-lg flex items-center cursor-pointer hover:bg-gray-800" id="smsVerification" tabindex="0" role="button" aria-label="Select SMS verification">
+                            <div class="w-10 h-10 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i class="fas fa-sms text-green-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">SMS Verification</p>
+                                <p class="text-xs text-gray-400">Receive a verification code via SMS</p>
+                            </div>
+                            <div class="ml-auto">
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="security-border p-3 rounded-lg flex items-center cursor-pointer hover:bg-gray-800" id="securityQuestions" tabindex="0" role="button" aria-label="Select security questions">
+                            <div class="w-10 h-10 rounded-full bg-purple-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i class="fas fa-question-circle text-purple-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Security Questions</p>
+                                <p class="text-xs text-gray-400">Answer your security questions</p>
+                            </div>
+                            <div class="ml-auto">
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="security-border p-3 rounded-lg flex items-center cursor-pointer hover:bg-gray-800" id="biometricVerification" tabindex="0" role="button" aria-label="Select biometric verification">
+                            <div class="w-10 h-10 rounded-full bg-yellow-500 bg-opacity-20 flex items-center justify-center mr-3">
+                                <i class="fas fa-fingerprint text-yellow-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Biometric Verification</p>
+                                <p class="text-xs text-gray-400">Use your fingerprint or face ID</p>
+                            </div>
+                            <div class="ml-auto">
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="sendVerification" class="btn-primary w-full py-3 rounded-lg font-medium text-white">
+                    SEND VERIFICATION
+                </button>
+            </div>
+            
+            <div id="forgotStep2" class="hidden">
+                <div class="mb-6 text-center">
+                    <p class="text-gray-400 mb-2">We've sent a verification code to your email</p>
+                    <p class="text-sm font-medium" id="verificationEmail">user@example.com</p>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2" for="verificationCode">Verification Code</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="text" id="verificationCode" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Enter 6-digit code" maxlength="6" pattern="[0-9]{6}" required>
+                    </div>
+                    <div class="mt-2 text-right">
+                        <button id="resendCode" class="text-sm text-blue-400 hover:text-blue-300">Resend code</button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2" for="newPassword">New Access Code</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="newPassword" class="form-input w-full pl-10 pr-10 py-3 rounded-lg text-white" placeholder="Create a new access code" required>
+                        <button type="button" id="toggleNewPassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-300 mb-2" for="confirmPassword">Confirm Access Code</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" id="confirmPassword" class="form-input w-full pl-10 pr-3 py-3 rounded-lg text-white" placeholder="Confirm your new access code" required>
+                        <button type="button" id="toggleConfirmPassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button id="backToForgotStep1" class="flex-1 py-3 rounded-lg font-medium text-white bg-gray-700 hover:bg-gray-600 transition">
+                        BACK
+                    </button>
+                    <button id="resetPassword" class="btn-primary flex-1 py-3 rounded-lg font-medium text-white">
+                        RESET CODE
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-gray-700 text-center">
+                <p class="text-xs text-gray-500">
+                    <span class="orbitron">© 2025 REXUS GROUP</span> | All Rights Reserved | <span class="orbitron">TOP SECRET</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Government Footer -->
+    <div class="security-footer">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <span class="orbitron">REXUS GROUP SECURITY PORTAL</span> | 
+                    <span>AUTHORIZED PERSONNEL ONLY</span>
+                </div>
+                <div class="mt-2 md:mt-0">
+                    <span class="security-badge"><i class="fas fa-certificate"></i> FIPS 140-2</span>
+                    <span class="security-badge"><i class="fas fa-shield-alt"></i> DOD 5220.22-M</span>
+                    <span class="security-badge"><i class="fas fa-lock"></i> AES-256</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const authContainer = document.getElementById('authContainer');
+        const loginForm = document.getElementById('loginForm');
+        const mfaSelectionForm = document.getElementById('mfaSelectionForm');
+        const totpMfaForm = document.getElementById('totpMfaForm');
+        const smsMfaForm = document.getElementById('smsMfaForm');
+        const emailMfaForm = document.getElementById('emailMfaForm');
+        const biometricMfaForm = document.getElementById('biometricMfaForm');
+        const hardwareMfaForm = document.getElementById('hardwareMfaForm');
+        const securityKeyMfaForm = document.getElementById('securityKeyMfaForm');
+        const securityQuestionsForm = document.getElementById('securityQuestionsForm');
+        const deviceRecognitionForm = document.getElementById('deviceRecognitionForm');
+        const securityDashboard = document.getElementById('securityDashboard');
+        const signupForm = document.getElementById('signupForm');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        
+        const loginFormElement = document.getElementById('loginFormElement');
+        const signupFormElement = document.getElementById('signupFormElement');
+        
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const signupLink = document.getElementById('signupLink');
+        const loginLink = document.getElementById('loginLink');
+        const continueToPortal = document.getElementById('continueToPortal');
+        
+        const notification = document.getElementById('notification');
+        const sessionTimer = document.getElementById('sessionTimer');
+        const timeRemaining = document.getElementById('timeRemaining');
+        const dashboardTimeRemaining = document.getElementById('dashboardTimeRemaining');
+        
+        // Role selection
+        const roleCards = document.querySelectorAll('.role-card');
+        const selectedRole = document.getElementById('selectedRole');
+        const selectedSignupRole = document.getElementById('selectedSignupRole');
+        
+        // Password visibility toggles
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleSignupPassword = document.getElementById('toggleSignupPassword');
+        const toggleNewPassword = document.getElementById('toggleNewPassword');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        
+        // Password strength
+        const signupPassword = document.getElementById('signupPassword');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const strengthBar = document.getElementById('strengthBar');
+        
+        // Forgot password steps
+        const forgotStep1 = document.getElementById('forgotStep1');
+        const forgotStep2 = document.getElementById('forgotStep2');
+        const sendVerification = document.getElementById('sendVerification');
+        const backToForgotStep1 = document.getElementById('backToForgotStep1');
+        const resetPassword = document.getElementById('resetPassword');
+        
+        // Verification methods
+        const emailVerification = document.getElementById('emailVerification');
+        const smsVerification = document.getElementById('smsVerification');
+        const securityQuestions = document.getElementById('securityQuestions');
+        const biometricVerification = document.getElementById('biometricVerification');
+        
+        // MFA selection
+        const mfaOptions = document.querySelectorAll('.mfa-option');
+        const proceedWithMfa = document.getElementById('proceedWithMfa');
+        
+        // MFA back buttons
+        const backToLoginFromMfa = document.getElementById('backToLoginFromMfa');
+        const backToMfaSelection = document.getElementById('backToMfaSelection');
+        const backToMfaSelectionFromSms = document.getElementById('backToMfaSelectionFromSms');
+        const backToMfaSelectionFromEmail = document.getElementById('backToMfaSelectionFromEmail');
+        const backToMfaSelectionFromBiometric = document.getElementById('backToMfaSelectionFromBiometric');
+        const backToMfaSelectionFromHardware = document.getElementById('backToMfaSelectionFromHardware');
+        const backToMfaSelectionFromSecurityKey = document.getElementById('backToMfaSelectionFromSecurityKey');
+        const backToMfaSelectionFromQuestions = document.getElementById('backToMfaSelectionFromQuestions');
+        const backToMfaSelectionFromDevice = document.getElementById('backToMfaSelectionFromDevice');
+        
+        // MFA verification buttons
+        const verifyTotp = document.getElementById('verifyTotp');
+        const verifySms = document.getElementById('verifySms');
+        const verifyEmail = document.getElementById('verifyEmail');
+        const verifyBiometric = document.getElementById('verifyBiometric');
+        const verifyHardware = document.getElementById('verifyHardware');
+        const verifySecurityKey = document.getElementById('verifySecurityKey');
+        const verifyQuestions = document.getElementById('verifyQuestions');
+        const verifyDevice = document.getElementById('verifyDevice');
+        
+        // Biometric methods
+        const biometricMethods = document.querySelectorAll('.biometric-method');
+        const biometricStatus = document.getElementById('biometricStatus');
+        
+        // Security key status
+        const securityKeyStatus = document.getElementById('securityKeyStatus');
+        
+        // Device fingerprint
+        const deviceFingerprint = document.getElementById('deviceFingerprint');
+        
+        // Session extension buttons
+        const extendSession15 = document.getElementById('extendSession15');
+        const extendSession60 = document.getElementById('extendSession60');
+        
+        // Dashboard tabs
+        const dashboardTabs = document.querySelectorAll('.security-dashboard-tab');
+        const dashboardContents = document.querySelectorAll('.security-dashboard-content');
+        
+        // Store selected role and MFA method globally
+        let userSelectedRole = '';
+        let selectedMfaMethod = '';
+        let selectedBiometricMethod = '';
+        let sessionTimeout;
+        let timeLeft = 900; // 15 minutes in seconds
+        
+        // Generate random device fingerprint
+        function generateDeviceFingerprint() {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let fingerprint = '';
+            for (let i = 0; i < 64; i++) {
+                fingerprint += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return fingerprint;
+        }
+        
+        // Generate random TOTP secret
+        function generateTotpSecret() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+            let secret = '';
+            for (let i = 0; i < 16; i++) {
+                secret += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return secret;
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show flash messages
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                setTimeout(() => {
+                    message.classList.add('show');
+                }, 100);
+                
+                setTimeout(() => {
+                    message.classList.remove('show');
+                }, 5000);
+            });
+            
+            // Initialize all code inputs to only accept numbers
+            const codeInputs = document.querySelectorAll('input[maxlength="6"][pattern="[0-9]{6}"]');
+            codeInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            });
+            
+            // Set default verification method for forgot password
+            emailVerification.classList.add('glow');
+            
+            // Generate device fingerprint
+            deviceFingerprint.textContent = generateDeviceFingerprint();
+            
+            // Generate TOTP secret
+            const totpSecret = generateTotpSecret();
+            document.getElementById('totpSecret').textContent = totpSecret;
+            document.getElementById('totpQrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=otpauth://totp/RexusGroup:user@example.com?secret=${totpSecret}&issuer=RexusGroup`;
+            
+            // Initialize dashboard tabs
+            dashboardTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // Update active tab
+                    dashboardTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update active content
+                    dashboardContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+        });
+        
+        // Role selection functionality
+        roleCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const allCards = document.querySelectorAll('.role-card');
+                const form = this.closest('form');
+                const roleInput = form.id === 'loginFormElement' ? selectedRole : selectedSignupRole;
+                
+                allCards.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                roleInput.value = this.dataset.role;
+                
+                // Store the selected role globally
+                userSelectedRole = this.dataset.role;
+            });
+            
+            // Add keyboard support for accessibility
+            card.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+        
+        // Password visibility toggle
+        togglePassword.addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+        
+        toggleSignupPassword.addEventListener('click', function() {
+            const passwordInput = document.getElementById('signupPassword');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+        
+        toggleNewPassword.addEventListener('click', function() {
+            const passwordInput = document.getElementById('newPassword');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+        
+        toggleConfirmPassword.addEventListener('click', function() {
+            const passwordInput = document.getElementById('confirmPassword');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+        
+        // Password strength checker
+        signupPassword.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 8) strength += 1;
+            if (password.match(/[a-z]+/)) strength += 1;
+            if (password.match(/[A-Z]+/)) strength += 1;
+            if (password.match(/[0-9]+/)) strength += 1;
+            if (password.match(/[$@#&!]+/)) strength += 1;
+            
+            switch (strength) {
+                case 0:
+                    passwordStrength.textContent = 'Access code strength';
+                    strengthBar.style.width = '0%';
+                    strengthBar.className = 'h-1.5 rounded-full bg-gray-700';
+                    break;
+                case 1:
+                    passwordStrength.textContent = 'Weak';
+                    strengthBar.style.width = '25%';
+                    strengthBar.className = 'h-1.5 rounded-full bg-red-500';
+                    break;
+                case 2:
+                    passwordStrength.textContent = 'Fair';
+                    strengthBar.style.width = '50%';
+                    strengthBar.className = 'h-1.5 rounded-full bg-orange-500';
+                    break;
+                case 3:
+                    passwordStrength.textContent = 'Good';
+                    strengthBar.style.width = '75%';
+                    strengthBar.className = 'h-1.5 rounded-full bg-yellow-500';
+                    break;
+                case 4:
+                case 5:
+                    passwordStrength.textContent = 'Strong';
+                    strengthBar.style.width = '100%';
+                    strengthBar.className = 'h-1.5 rounded-full bg-green-500';
+                    break;
+            }
+        });
+        
+        // Form navigation
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetForm('loginFormElement');
+            loginForm.classList.add('hidden');
+            forgotPasswordForm.classList.remove('hidden');
+        });
+        
+        signupLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetForm('loginFormElement');
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+        });
+        
+        loginLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetForm('signupFormElement');
+            signupForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
+        
+        continueToPortal.addEventListener('click', function() {
+            // Get selected role from global variable
+            const role = userSelectedRole;
+            
+            // Redirect to appropriate portal based on role
+            switch (role) {
+                case 'LEGAL':
+                    window.location.href = '{{ url_for("lea_portal") }}';
+                    break;
+                case 'DA/CA':
+                    window.location.href = '{{ url_for("da_portal") }}';
+                    break;
+                case 'Defense':
+                    window.location.href = '{{ url_for("defense_portal") }}';
+                    break;
+                case 'Admin':
+                    window.location.href = '{{ url_for("admin_portal") }}';
+                    break;
+                default:
+                    showNotification('Invalid role selected', 'error');
+                    return;
+            }
+        });
+        
+        // MFA selection
+        mfaOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                if (this.classList.contains('disabled')) {
+                    return;
+                }
+                
+                mfaOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedMfaMethod = this.dataset.mfa;
+                proceedWithMfa.disabled = false;
+            });
+        });
+        
+        // Proceed with selected MFA method
+        proceedWithMfa.addEventListener('click', function() {
+            if (!selectedMfaMethod) {
+                showNotification('Please select a verification method', 'error');
+                return;
+            }
+            
+            mfaSelectionForm.classList.add('hidden');
+            
+            switch (selectedMfaMethod) {
+                case 'totp':
+                    totpMfaForm.classList.remove('hidden');
+                    // Generate new TOTP secret each time
+                    const totpSecret = generateTotpSecret();
+                    document.getElementById('totpSecret').textContent = totpSecret;
+                    document.getElementById('totpQrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=otpauth://totp/RexusGroup:user@example.com?secret=${totpSecret}&issuer=RexusGroup`;
+                    break;
+                case 'sms':
+                    smsMfaForm.classList.remove('hidden');
+                    // Simulate sending SMS
+                    const lastFourDigits = document.getElementById('lastFourDigits');
+                    lastFourDigits.textContent = Math.floor(1000 + Math.random() * 9000).toString();
+                    break;
+                case 'email':
+                    emailMfaForm.classList.remove('hidden');
+                    break;
+                case 'biometric':
+                    biometricMfaForm.classList.remove('hidden');
+                    break;
+                case 'hardware':
+                    hardwareMfaForm.classList.remove('hidden');
+                    // Generate random token ID
+                    const tokenId = document.getElementById('tokenId');
+                    tokenId.textContent = Math.floor(10000000 + Math.random() * 90000000).toString();
+                    break;
+                case 'security-key':
+                    securityKeyMfaForm.classList.remove('hidden');
+                    break;
+                default:
+                    showNotification('Invalid verification method', 'error');
+                    mfaSelectionForm.classList.remove('hidden');
+            }
+        });
+        
+        // MFA back buttons
+        backToLoginFromMfa.addEventListener('click', function() {
+            mfaSelectionForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
+        
+        backToMfaSelection.addEventListener('click', function() {
+            totpMfaForm.classList.add('hidden');
+            mfaSelectionForm.classList.remove('hidden');
+        });
+        
+        backToMfaSelectionFromSms.addEventListener('click', function() {
+            smsMfaForm.classList.add('hidden');
+            mfaSelectionForm.classList.remove('hidden');
+        });
+        
+        backToMfaSelectionFromEmail.addEventListener('click', function() {
+            emailMfaForm.classList.add('hidden');
+            mfaSelectionForm.classList.remove('hidden');
+        });
+        
+        backToMfaSelectionFromBiometric.addEventListener('click', function() {
+            biometricMfaForm.classList.add('hidden');
+            mfaSelectionForm.classList.remove('hidden');
+        });
+        
+        backToMfaSelectionFromHardware.addEventListener('click', function() {
+            hardwareMfaForm.classList.add('hidden');
+            mfaSelectionForm.classList.remove('hidden');
+        });
+        
+        backToMfaSelectionFromSecurityKey.addEventListener('click', function() {
+            securityKeyMfaForm.classList.add('hidden');
+            mfaSelectionForm.classList.remove('hidden');
+        });
+        
+        backToMfaSelectionFromQuestions.addEventListener('click', function() {
+            securityQuestionsForm.classList.add('hidden');
+            mfaSelectionForm.classList.remove('hidden');
+        });
+        
+        backToMfaSelectionFromDevice.addEventListener('click', function() {
+            deviceRecognitionForm.classList.add('hidden');
+            mfaSelectionForm.classList.remove('hidden');
+        });
+        
+        // Biometric method selection
+        biometricMethods.forEach(method => {
+            method.addEventListener('click', function() {
+                biometricMethods.forEach(m => m.classList.remove('glow'));
+                this.classList.add('glow');
+                
+                selectedBiometricMethod = this.dataset.method;
+                verifyBiometric.disabled = false;
+                
+                if (selectedBiometricMethod === 'fingerprint') {
+                    biometricStatus.innerHTML = '<i class="fas fa-fingerprint mr-2"></i> Fingerprint authentication ready';
+                } else if (selectedBiometricMethod === 'face') {
+                    biometricStatus.innerHTML = '<i class="fas fa-user mr-2"></i> Face ID authentication ready';
+                }
+            });
+        });
+        
+        // Verify biometric
+        verifyBiometric.addEventListener('click', function() {
+            if (!selectedBiometricMethod) {
+                showNotification('Please select a biometric method', 'error');
+                return;
+            }
+            
+            // Simulate biometric verification
+            this.disabled = true;
+            this.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+            
+            setTimeout(() => {
+                showNotification('Biometric verification successful!', 'success');
+                biometricMfaForm.classList.add('hidden');
+                deviceRecognitionForm.classList.remove('hidden');
+                this.disabled = false;
+                this.innerHTML = 'VERIFY';
+            }, 2000);
+        });
+        
+        // Verify security key
+        verifySecurityKey.addEventListener('click', function() {
+            // Simulate security key verification
+            this.disabled = true;
+            this.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+            securityKeyStatus.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Verifying security key...';
+            
+            setTimeout(() => {
+                showNotification('Security key verification successful!', 'success');
+                securityKeyMfaForm.classList.add('hidden');
+                securityQuestionsForm.classList.remove('hidden');
+                this.disabled = false;
+                this.innerHTML = 'VERIFY';
+                securityKeyStatus.innerHTML = '<i class="fas fa-check-circle mr-2 text-green-400"></i> Security key verified';
+            }, 3000);
+        });
+        
+        // MFA verification buttons
+        verifyTotp.addEventListener('click', function() {
+            const totpCode = document.getElementById('totpCode').value;
+            
+            if (totpCode.length !== 6) {
+                showNotification('Please enter a valid 6-digit code', 'error');
+                return;
+            }
+            
+            // Simulate TOTP verification
+            this.disabled = true;
+            this.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+            
+            setTimeout(() => {
+                showNotification('Authentication successful!', 'success');
+                totpMfaForm.classList.add('hidden');
+                securityQuestionsForm.classList.remove('hidden');
+                this.disabled = false;
+                this.innerHTML = 'VERIFY';
+            }, 1500);
+        });
+        
+        verifySms.addEventListener('click', function() {
+            const smsCode = document.getElementById('smsCode').value;
+            
+            if (smsCode.length !== 6) {
+                showNotification('Please enter a valid 6-digit code', 'error');
+                return;
+            }
+            
+            // Simulate SMS verification
+            this.disabled = true;
+            this.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+            
+            setTimeout(() => {
+                showNotification('SMS verification successful!', 'success');
+                smsMfaForm.classList.add('hidden');
+                securityQuestionsForm.classList.remove('hidden');
+                this.disabled = false;
+                this.innerHTML = 'VERIFY';
+            }, 1500);
+        });
+        
+        verifyEmail.addEventListener('click', function() {
+            const emailCode = document.getElementById('emailCode').value;
+            
+            if (emailCode.length !== 6) {
+                showNotification('Please enter a valid 6-digit code', 'error');
+                return;
+            }
+            
+            // Simulate email verification
+            this.disabled = true;
+            this.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+            
+            setTimeout(() => {
+                showNotification('Email verification successful!', 'success');
+                emailMfaForm.classList.add('hidden');
+                securityQuestionsForm.classList.remove('hidden');
+                this.disabled = false;
+                this.innerHTML = 'VERIFY';
+            }, 1500);
+        });
+        
+        verifyHardware.addEventListener('click', function() {
+            const hardwareCode = document.getElementById('hardwareCode').value;
+            
+            if (hardwareCode.length !== 6) {
+                showNotification('Please enter a valid 6-digit code', 'error');
+                return;
+            }
+            
+            // Simulate hardware token verification
+            this.disabled = true;
+            this.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+            
+            setTimeout(() => {
+                showNotification('Hardware token verification successful!', 'success');
+                hardwareMfaForm.classList.add('hidden');
+                securityQuestionsForm.classList.remove('hidden');
+                this.disabled = false;
+                this.innerHTML = 'VERIFY';
+            }, 1500);
+        });
+        
+        verifyQuestions.addEventListener('click', function() {
+            // Simulate security questions verification
+            this.disabled = true;
+            this.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+            
+            setTimeout(() => {
+                showNotification('Security questions verified successfully!', 'success');
+                securityQuestionsForm.classList.add('hidden');
+                deviceRecognitionForm.classList.remove('hidden');
+                this.disabled = false;
+                this.innerHTML = 'VERIFY';
+            }, 1500);
+        });
+        
+        verifyDevice.addEventListener('click', function() {
+            // Simulate device recognition
+            this.disabled = true;
+            this.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+            
+            setTimeout(() => {
+                showNotification('Device recognized successfully!', 'success');
+                deviceRecognitionForm.classList.add('hidden');
+                showSecurityDashboard();
+                this.disabled = false;
+                this.innerHTML = 'CONTINUE';
+            }, 1500);
+        });
+        
+        // Resend code buttons
+        document.getElementById('resendSmsCode').addEventListener('click', function() {
+            showNotification('SMS code resent!', 'success');
+            this.disabled = true;
+            this.textContent = 'Resend in 30s';
+            
+            let countdown = 30;
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                this.textContent = `Resend in ${countdown}s`;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    this.disabled = false;
+                    this.textContent = 'Resend Code';
+                }
+            }, 1000);
+        });
+        
+        document.getElementById('resendEmailCode').addEventListener('click', function() {
+            showNotification('Email code resent!', 'success');
+            this.disabled = true;
+            this.textContent = 'Resend in 30s';
+            
+            let countdown = 30;
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                this.textContent = `Resend in ${countdown}s`;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    this.disabled = false;
+                    this.textContent = 'Resend Code';
+                }
+            }, 1000);
+        });
+        
+        // Login form submission
+        loginFormElement.addEventListener('submit', function(e) {
+            const role = selectedRole.value;
+            
+            if (!role) {
+                e.preventDefault();
+                showNotification('Please select a security clearance level', 'error');
+                return;
+            }
+            
+            // Store the selected role globally
+            userSelectedRole = role;
+            
+            // Show loading state
+            document.getElementById('loginButtonText').classList.add('hidden');
+            document.getElementById('loginSpinner').classList.remove('hidden');
+            
+            // Simulate login process
+            setTimeout(() => {
+                loginForm.classList.add('hidden');
+                mfaSelectionForm.classList.remove('hidden');
+                document.getElementById('loginButtonText').classList.remove('hidden');
+                document.getElementById('loginSpinner').classList.add('hidden');
+            }, 1500);
+        });
+        
+        // Forgot password steps
+        sendVerification.addEventListener('click', function() {
+            const email = document.getElementById('forgotEmail').value;
+            if (email) {
+                document.getElementById('verificationEmail').textContent = email;
+                forgotStep1.classList.add('hidden');
+                forgotStep2.classList.remove('hidden');
+                showNotification('Verification code sent!', 'success');
+            } else {
+                showNotification('Please enter your email address', 'error');
+            }
+        });
+        
+        backToForgotStep1.addEventListener('click', function() {
+            forgotStep2.classList.add('hidden');
+            forgotStep1.classList.remove('hidden');
+        });
+        
+        resetPassword.addEventListener('click', function() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('Access codes do not match', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showNotification('Access code must be at least 8 characters', 'error');
+                return;
+            }
+            
+            // Simulate password reset
+            showNotification('Access code reset successful!', 'success');
+            setTimeout(() => {
+                forgotPasswordForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                resetForm('forgotPasswordForm');
+            }, 2000);
+        });
+        
+        // Verification method selection for forgot password
+        emailVerification.addEventListener('click', function() {
+            emailVerification.classList.add('glow');
+            smsVerification.classList.remove('glow');
+            securityQuestions.classList.remove('glow');
+            biometricVerification.classList.remove('glow');
+        });
+        
+        smsVerification.addEventListener('click', function() {
+            smsVerification.classList.add('glow');
+            emailVerification.classList.remove('glow');
+            securityQuestions.classList.remove('glow');
+            biometricVerification.classList.remove('glow');
+        });
+        
+        securityQuestions.addEventListener('click', function() {
+            securityQuestions.classList.add('glow');
+            emailVerification.classList.remove('glow');
+            smsVerification.classList.remove('glow');
+            biometricVerification.classList.remove('glow');
+        });
+        
+        biometricVerification.addEventListener('click', function() {
+            biometricVerification.classList.add('glow');
+            emailVerification.classList.remove('glow');
+            smsVerification.classList.remove('glow');
+            securityQuestions.classList.remove('glow');
+        });
+        
+        // Signup form submission
+        signupFormElement.addEventListener('submit', function(e) {
+            const role = selectedSignupRole.value;
+            const terms = document.getElementById('terms').checked;
+            const mfaConsent = document.getElementById('mfaConsent').checked;
+            const backgroundCheck = document.getElementById('backgroundCheck').checked;
+            
+            if (!role) {
+                e.preventDefault();
+                showNotification('Please select a department', 'error');
+                return;
+            }
+            
+            if (!terms) {
+                e.preventDefault();
+                showNotification('Please accept the terms and conditions', 'error');
+                return;
+            }
+            
+            if (!mfaConsent) {
+                e.preventDefault();
+                showNotification('Please consent to enable multi-factor authentication', 'error');
+                return;
+            }
+            
+            if (!backgroundCheck) {
+                e.preventDefault();
+                showNotification('Please consent to a security background check', 'error');
+                return;
+            }
+            
+            // Show loading state
+            document.getElementById('signupButtonText').classList.add('hidden');
+            document.getElementById('signupSpinner').classList.remove('hidden');
+            
+            // Simulate signup process
+            setTimeout(() => {
+                showNotification('Access request submitted successfully! Please allow 3-5 business days for processing.', 'success');
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                resetForm('signupFormElement');
+            }, 2000);
+        });
+        
+        // Security dashboard actions
+        document.getElementById('changePassword').addEventListener('click', function() {
+            showNotification('Access code change feature coming soon!', 'warning');
+        });
+        
+        document.getElementById('manageDevices').addEventListener('click', function() {
+            // Switch to devices tab
+            dashboardTabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === 'devices') {
+                    tab.classList.add('active');
+                }
+            });
+            
+            dashboardContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === 'devices-tab') {
+                    content.classList.add('active');
+                }
+            });
+        });
+        
+        document.getElementById('viewActivity').addEventListener('click', function() {
+            // Switch to activity tab
+            dashboardTabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === 'activity') {
+                    tab.classList.add('active');
+                }
+            });
+            
+            dashboardContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === 'activity-tab') {
+                    content.classList.add('active');
+                }
+            });
+        });
+        
+        // Session extension buttons
+        extendSession15.addEventListener('click', function() {
+            timeLeft += 900; // Add 15 minutes
+            updateSessionTimer();
+            showNotification('Session extended by 15 minutes', 'success');
+        });
+        
+        extendSession60.addEventListener('click', function() {
+            timeLeft += 3600; // Add 60 minutes
+            updateSessionTimer();
+            showNotification('Session extended by 60 minutes', 'success');
+        });
+        
+        // Notification function
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Resend verification code
+        document.getElementById('resendCode').addEventListener('click', function() {
+            showNotification('Verification code resent!', 'success');
+        });
+        
+        // Reset form function
+        function resetForm(formId) {
+            const form = document.getElementById(formId);
+            if (form) {
+                form.reset();
+                // Reset role selections
+                const roleCards = form.querySelectorAll('.role-card');
+                roleCards.forEach(card => card.classList.remove('selected'));
+                const roleInput = form.querySelector('input[type="hidden"][name="role"]');
+                if (roleInput) roleInput.value = '';
+                
+                // Reset password strength meter
+                if (formId === 'signupFormElement') {
+                    passwordStrength.textContent = 'Access code strength';
+                    strengthBar.style.width = '0%';
+                    strengthBar.className = 'h-1.5 rounded-full bg-gray-700';
+                }
+                
+                // Reset loading states
+                if (formId === 'loginFormElement') {
+                    document.getElementById('loginButtonText').classList.remove('hidden');
+                    document.getElementById('loginSpinner').classList.add('hidden');
+                } else if (formId === 'signupFormElement') {
+                    document.getElementById('signupButtonText').classList.remove('hidden');
+                    document.getElementById('signupSpinner').classList.add('hidden');
+                }
+            }
+        }
+        
+        // Show security dashboard
+        function showSecurityDashboard() {
+            securityDashboard.classList.remove('hidden');
+            startSessionTimer();
+            showNotification('Welcome to your Security Dashboard!', 'success');
+        }
+        
+        // Session timer
+        function startSessionTimer() {
+            sessionTimer.style.display = 'block';
+            updateSessionTimer();
+            
+            sessionTimeout = setInterval(() => {
+                timeLeft--;
+                updateSessionTimer();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(sessionTimeout);
+                    showNotification('Session expired. Please authenticate again.', 'warning');
+                    securityDashboard.classList.add('hidden');
+                    loginForm.classList.remove('hidden');
+                    resetForm('loginFormElement');
+                }
+            }, 1000);
+        }
+        
+        function updateSessionTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const formattedTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            timeRemaining.textContent = formattedTime;
+            dashboardTimeRemaining.textContent = formattedTime;
+            
+            // Update timer styling based on remaining time
+            if (timeLeft <= 60) {
+                sessionTimer.classList.add('danger');
+                sessionTimer.classList.remove('warning');
+            } else if (timeLeft <= 300) {
+                sessionTimer.classList.add('warning');
+                sessionTimer.classList.remove('danger');
+            } else {
+                sessionTimer.classList.remove('warning', 'danger');
+            }
+        }
+        
+        // Reset session timer on user activity
+        document.addEventListener('mousemove', resetSessionTimer);
+        document.addEventListener('keypress', resetSessionTimer);
+        
+        function resetSessionTimer() {
+            if (timeLeft < 900 && !securityDashboard.classList.contains('hidden')) {
+                timeLeft = 900;
+                updateSessionTimer();
+            }
+        }
+    </script>
+</body>
+</html>

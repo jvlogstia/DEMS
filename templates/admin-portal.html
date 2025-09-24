@@ -1,0 +1,2213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Rexus Group</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #3b82f6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .bg-gradient-security {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        
+        .bg-gradient-accent {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .security-border {
+            position: relative;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .security-border::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.4), transparent);
+            animation: scan 3s infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        
+        .glow {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        
+        .form-input {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+            color: #e2e8f0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .security-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning);
+        }
+        
+        /* Portal Styles */
+        .portal-container {
+            min-height: 100vh;
+            background-color: var(--primary);
+        }
+        
+        .portal-header {
+            background-color: var(--secondary);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .sidebar {
+            background-color: var(--secondary);
+            border-right: 1px solid rgba(59, 130, 246, 0.3);
+            min-height: calc(100vh - 64px);
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .sidebar-item.active {
+            background-color: rgba(59, 130, 246, 0.2);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .sidebar-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+        
+        .sidebar-item:hover::after {
+            transform: translateX(100%);
+        }
+        
+        .portal-content {
+            padding: 2rem;
+            min-height: calc(100vh - 64px);
+        }
+        
+        .stat-card {
+            background-color: var(--secondary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.2), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+        }
+        
+        .progress-bar {
+            background-color: rgba(59, 130, 246, 0.2);
+            border-radius: 9999px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+        
+        .table-container {
+            background-color: var(--secondary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background-color: rgba(59, 130, 246, 0.1);
+            padding: 1rem;
+            font-weight: 600;
+        }
+        
+        .table-row {
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .table-row:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .badge-purple {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+        }
+        
+        .chart-container {
+            background-color: var(--secondary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            height: 300px;
+        }
+        
+        /* Holographic effect */
+        .holographic {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .holographic::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            transform: rotate(45deg);
+            animation: holographic-shine 3s infinite;
+        }
+        
+        @keyframes holographic-shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        /* Digital Rain Effect */
+        .digital-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.05;
+            overflow: hidden;
+        }
+        
+        .rain-column {
+            position: absolute;
+            top: -100%;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            color: #3b82f6;
+            animation: rain linear infinite;
+        }
+        
+        @keyframes rain {
+            to { transform: translateY(200vh); }
+        }
+        
+        /* User Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: var(--secondary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            width: 600px;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 1rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(59, 130, 246, 0.3);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        /* Notification Center */
+        .notification-center {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 350px;
+            background-color: var(--secondary);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 100;
+            transform: scale(0.95);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .notification-center.active {
+            transform: scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .notification-list {
+            padding: 1rem;
+        }
+        
+        .notification-item {
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .notification-item.unread {
+            background-color: rgba(59, 130, 246, 0.05);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .notification-item-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .notification-item-time {
+            font-size: 0.75rem;
+            color: rgba(226, 232, 240, 0.5);
+        }
+        
+        /* System Monitor */
+        .system-monitor {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .monitor-card {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .monitor-title {
+            font-size: 0.875rem;
+            color: rgba(226, 232, 240, 0.7);
+            margin-bottom: 0.5rem;
+        }
+        
+        .monitor-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .monitor-bar {
+            height: 6px;
+            background-color: rgba(59, 130, 246, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .monitor-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4b5563;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #3b82f6;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-security">
+    <div class="security-pattern"></div>
+    
+    <!-- Digital Rain Effect -->
+    <div class="digital-rain" id="digitalRain"></div>
+    
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
+    
+    <!-- Notification Center -->
+    <div class="notification-center" id="notificationCenter">
+        <div class="notification-header">
+            <h3 class="font-semibold">System Notifications</h3>
+            <button id="closeNotificationCenter" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <div class="notification-item unread">
+                <div class="notification-item-title">New user registration pending approval</div>
+                <div class="notification-item-time">1 hour ago</div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-item-title">System backup completed successfully</div>
+                <div class="notification-item-time">3 hours ago</div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-item-title">Security alert: Multiple failed login attempts</div>
+                <div class="notification-item-time">5 hours ago</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold" id="userModalTitle">Add New User</h3>
+                <button id="closeUserModal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-300 mb-2">First Name</label>
+                            <input type="text" id="firstName" name="firstName" class="form-input w-full" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" class="form-input w-full" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Email</label>
+                        <input type="email" id="email" name="email" class="form-input w-full" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-300 mb-2">Role</label>
+                            <select id="role" name="role" class="form-input w-full" required>
+                                <option value="">Select a role</option>
+                                <option value="Admin">System Admin</option>
+                                <option value="DA/CA">District Attorney/Court Attorney</option>
+                                <option value="Defense">Defense Attorney</option>
+                                <option value="LEGAL">Legal Officer</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2">Department</label>
+                            <input type="text" id="department" name="department" class="form-input w-full" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Password</label>
+                        <input type="password" id="password" name="password" class="form-input w-full" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Status</label>
+                        <select id="status" name="status" class="form-input w-full" required>
+                            <option value="Active">Active</option>
+                            <option value="Pending">Pending Approval</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelUserModal" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg mr-2">
+                    Cancel
+                </button>
+                <button id="saveUser" class="btn-primary px-4 py-2 rounded-lg">
+                    Save User
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Portal -->
+    <div id="adminPortal" class="portal-container">
+        <header class="portal-header px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gradient-accent rounded-full flex items-center justify-center mr-3 holographic">
+                    <i class="fas fa-cog text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold orbitron text-gradient">Admin Portal</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button id="notificationBell" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full pulse-animation"></span>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <img src="https://picsum.photos/seed/admin/40/40.jpg" alt="User" class="w-8 h-8 rounded-full">
+                    <span class="text-sm">System Admin</span>
+                </div>
+                <a href="{{ url_for('logout') }}" id="logoutAdmin" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </header>
+        
+        <div class="flex">
+            <aside class="sidebar w-64 p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        Dashboard
+                    </div>
+                    <div class="sidebar-item" data-page="user-management">
+                        <i class="fas fa-users mr-3"></i>
+                        User Management
+                    </div>
+                    <div class="sidebar-item" data-page="audit-logs">
+                        <i class="fas fa-history mr-3"></i>
+                        Audit Logs
+                    </div>
+                    <div class="sidebar-item" data-page="analytics">
+                        <i class="fas fa-chart-bar mr-3"></i>
+                        Analytics
+                    </div>
+                    <div class="sidebar-item" data-page="system-monitor">
+                        <i class="fas fa-desktop mr-3"></i>
+                        System Monitor
+                    </div>
+                    <div class="sidebar-item" data-page="settings">
+                        <i class="fas fa-cog mr-3"></i>
+                        Settings
+                    </div>
+                </nav>
+            </aside>
+            
+            <main class="portal-content flex-1">
+                <!-- Admin Dashboard -->
+                <div id="admin-dashboard" class="portal-page">
+                    <h2 class="text-2xl font-bold mb-6">Admin Dashboard</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Total Users</h3>
+                                <i class="fas fa-users text-blue-400"></i>
+                            </div>
+                            <p class="text-3xl font-bold">342</p>
+                            <p class="text-sm text-gray-400">+12 this month</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Active Cases</h3>
+                                <i class="fas fa-briefcase text-blue-400"></i>
+                            </div>
+                            <p class="text-3xl font-bold">89</p>
+                            <p class="text-sm text-gray-400">Across all departments</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Storage Used</h3>
+                                <i class="fas fa-hdd text-blue-400"></i>
+                            </div>
+                            <p class="text-3xl font-bold">24.5TB</p>
+                            <p class="text-sm text-gray-400">Of 50TB available</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 49%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">System Health</h3>
+                                <i class="fas fa-heartbeat text-blue-400"></i>
+                            </div>
+                            <p class="text-3xl font-bold">98%</p>
+                            <p class="text-sm text-gray-400">All systems operational</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 98%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Recent System Activity</h3>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-user-plus text-green-400 mt-1 mr-3"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">New User Registration</p>
+                                            <p class="text-sm text-gray-400">Officer Davis (LEA) registered successfully</p>
+                                            <p class="text-xs text-gray-500">2 hours ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-file-upload text-blue-400 mt-1 mr-3"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">Large File Upload</p>
+                                            <p class="text-sm text-gray-400">1.2GB video file uploaded to Case #LEA-2023-0456</p>
+                                            <p class="text-xs text-gray-500">3 hours ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-shield-alt text-yellow-400 mt-1 mr-3"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">Security Alert</p>
+                                            <p class="text-sm text-gray-400">Multiple failed login attempts detected for user: admin</p>
+                                            <p class="text-xs text-gray-500">5 hours ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-database text-purple-400 mt-1 mr-3"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">System Backup</p>
+                                            <p class="text-sm text-gray-400">Daily backup completed successfully</p>
+                                            <p class="text-xs text-gray-500">Yesterday</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">System Usage Overview</h3>
+                            <div class="chart-container">
+                                <canvas id="systemUsageChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Management -->
+                <div id="admin-user-management" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">User Management</h2>
+                    
+                    <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <input type="text" id="userSearch" class="form-input w-64" placeholder="Search users...">
+                                <select id="roleFilter" class="form-input">
+                                    <option>All Roles</option>
+                                    <option>Admin</option>
+                                    <option>DA/CA</option>
+                                    <option>Defense</option>
+                                    <option>LEGAL</option>
+                                </select>
+                                <select id="statusFilter" class="form-input">
+                                    <option>All Status</option>
+                                    <option>Active</option>
+                                    <option>Pending</option>
+                                    <option>Suspended</option>
+                                </select>
+                            </div>
+                            <button id="addUserBtn" class="btn-primary px-4 py-2 rounded-lg">
+                                <i class="fas fa-plus mr-2"></i>Add User
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">User</th>
+                                        <th class="px-4 py-3 text-left">Role</th>
+                                        <th class="px-4 py-3 text-left">Department</th>
+                                        <th class="px-4 py-3 text-left">Status</th>
+                                        <th class="px-4 py-3 text-left">Last Login</th>
+                                        <th class="px-4 py-3 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTableBody">
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <img src="https://picsum.photos/seed/user1/32/32.jpg" alt="User" class="w-8 h-8 rounded-full mr-3">
+                                                <div>
+                                                    <p class="font-medium">John Smith</p>
+                                                    <p class="text-xs text-gray-400">john.smith@example.com</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">LEA Officer</td>
+                                        <td class="px-4 py-3">Robbery Division</td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-success">Active</span>
+                                        </td>
+                                        <td class="px-4 py-3">Oct 16, 2023</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-blue-400 hover:text-blue-300 mr-3 edit-user" data-id="1">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-400 hover:text-red-300 delete-user" data-id="1">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <img src="https://picsum.photos/seed/user2/32/32.jpg" alt="User" class="w-8 h-8 rounded-full mr-3">
+                                                <div>
+                                                    <p class="font-medium">Sarah Johnson</p>
+                                                    <p class="text-xs text-gray-400">sarah.johnson@example.com</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">District Attorney</td>
+                                        <td class="px-4 py-3">Prosecution</td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-success">Active</span>
+                                        </td>
+                                        <td class="px-4 py-3">Oct 15, 2023</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-blue-400 hover:text-blue-300 mr-3 edit-user" data-id="2">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-400 hover:text-red-300 delete-user" data-id="2">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <img src="https://picsum.photos/seed/user3/32/32.jpg" alt="User" class="w-8 h-8 rounded-full mr-3">
+                                                <div>
+                                                    <p class="font-medium">Michael Brown</p>
+                                                    <p class="text-xs text-gray-400">michael.brown@example.com</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">Defense Attorney</td>
+                                        <td class="px-4 py-3">Criminal Defense</td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-success">Active</span>
+                                        </td>
+                                        <td class="px-4 py-3">Oct 14, 2023</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-blue-400 hover:text-blue-300 mr-3 edit-user" data-id="3">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="text-red-400 hover:text-red-300 delete-user" data-id="3">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">
+                                            <div class="flex items-center">
+                                                <img src="https://picsum.photos/seed/user4/32/32.jpg" alt="User" class="w-8 h-8 rounded-full mr-3">
+                                                <div>
+                                                    <p class="font-medium">Emily Davis</p>
+                                                    <p class="text-xs text-gray-400">emily.davis@example.com</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">LEA Officer</td>
+                                        <td class="px-4 py-3">Fraud Division</td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-warning">Pending Approval</span>
+                                        </td>
+                                        <td class="px-4 py-3">Never</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-green-400 hover:text-green-300 mr-3 approve-user" data-id="4">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="text-red-400 hover:text-red-300 reject-user" data-id="4">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Audit Logs -->
+                <div id="admin-audit-logs" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Audit Logs</h2>
+                    
+                    <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <input type="text" class="form-input w-64" placeholder="Search logs...">
+                                <input type="date" class="form-input">
+                                <input type="date" class="form-input">
+                                <select class="form-input">
+                                    <option>All Actions</option>
+                                    <option>Login</option>
+                                    <option>File Upload</option>
+                                    <option>Case Creation</option>
+                                    <option>User Management</option>
+                                </select>
+                            </div>
+                            <button class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+                                <i class="fas fa-download mr-2"></i>Export
+                            </button>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="border border-gray-700 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-sign-in-alt text-blue-400 mt-1 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">User Login</p>
+                                            <p class="text-sm text-gray-400">John Smith (LEA) logged in successfully</p>
+                                            <p class="text-xs text-gray-500">IP: 192.168.1.100 | Device: Chrome on Windows</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm">Oct 16, 2023</p>
+                                        <p class="text-xs text-gray-500">10:23 AM</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-700 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-file-upload text-green-400 mt-1 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">File Upload</p>
+                                            <p class="text-sm text-gray-400">Sarah Johnson (DA) uploaded 3 files to Case #DA-2023-0122</p>
+                                            <p class="text-xs text-gray-500">Files: Financial_Records.pdf (2.4MB), Screenshots.zip (456MB), Interview.mp4 (1.2GB)</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm">Oct 16, 2023</p>
+                                        <p class="text-xs text-gray-500">9:45 AM</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-700 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-plus-circle text-purple-400 mt-1 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">Case Creation</p>
+                                            <p class="text-sm text-gray-400">Officer Davis (LEA) created new case #LEA-2023-0458</p>
+                                            <p class="text-xs text-gray-500">Case Type: Robbery | Priority: High</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm">Oct 15, 2023</p>
+                                        <p class="text-xs text-gray-500">3:30 PM</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-700 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-user-shield text-yellow-400 mt-1 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">Permission Change</p>
+                                            <p class="text-sm text-gray-400">System Admin granted view-only access to Sarah Williams for Case #DA-2023-0122</p>
+                                            <p class="text-xs text-gray-500">Previous: No Access | New: View Evidence</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm">Oct 15, 2023</p>
+                                        <p class="text-xs text-gray-500">2:15 PM</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-700 rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-exclamation-triangle text-red-400 mt-1 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">Security Alert</p>
+                                            <p class="text-sm text-gray-400">Multiple failed login attempts detected for user: admin</p>
+                                            <p class="text-xs text-gray-500">IP: 203.0.113.42 | Attempts: 5 | Account locked temporarily</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm">Oct 15, 2023</p>
+                                        <p class="text-xs text-gray-500">11:45 AM</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-center">
+                            <button class="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+                                Load More
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics -->
+                <div id="admin-analytics" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Analytics</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Case Statistics</h3>
+                            <div class="chart-container">
+                                <canvas id="caseStatsChartAdmin"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">User Activity</h3>
+                            <div class="chart-container">
+                                <canvas id="userActivityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Department Breakdown</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">LEA</span>
+                                        <span class="text-sm">45%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">DA/CA</span>
+                                        <span class="text-sm">30%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">Defense</span>
+                                        <span class="text-sm">20%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 20%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">Admin</span>
+                                        <span class="text-sm">5%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 5%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Storage Usage</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">Evidence Files</span>
+                                        <span class="text-sm">18.2TB</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">Case Documents</span>
+                                        <span class="text-sm">4.8TB</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 20%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm">System Backups</span>
+                                        <span class="text-sm">1.5TB</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 5%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">System Performance</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Response Time</span>
+                                    <span class="text-sm font-medium">245ms</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Uptime</span>
+                                    <span class="text-sm font-medium">99.98%</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Active Users</span>
+                                    <span class="text-sm font-medium">127</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">CPU Usage</span>
+                                    <span class="text-sm font-medium">42%</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">Memory Usage</span>
+                                    <span class="text-sm font-medium">68%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Monitor -->
+                <div id="admin-system-monitor" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">System Monitor</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Real-time System Metrics</h3>
+                            <div class="system-monitor">
+                                <div class="monitor-card">
+                                    <div class="monitor-title">CPU Usage</div>
+                                    <div class="monitor-value" id="cpuValue">42%</div>
+                                    <div class="monitor-bar">
+                                        <div class="monitor-fill" id="cpuBar" style="width: 42%; background-color: #3b82f6;"></div>
+                                    </div>
+                                </div>
+                                <div class="monitor-card">
+                                    <div class="monitor-title">Memory Usage</div>
+                                    <div class="monitor-value" id="memoryValue">68%</div>
+                                    <div class="monitor-bar">
+                                        <div class="monitor-fill" id="memoryBar" style="width: 68%; background-color: #8b5cf6;"></div>
+                                    </div>
+                                </div>
+                                <div class="monitor-card">
+                                    <div class="monitor-title">Disk Usage</div>
+                                    <div class="monitor-value" id="diskValue">49%</div>
+                                    <div class="monitor-bar">
+                                        <div class="monitor-fill" id="diskBar" style="width: 49%; background-color: #10b981;"></div>
+                                    </div>
+                                </div>
+                                <div class="monitor-card">
+                                    <div class="monitor-title">Network I/O</div>
+                                    <div class="monitor-value" id="networkValue">24%</div>
+                                    <div class="monitor-bar">
+                                        <div class="monitor-fill" id="networkBar" style="width: 24%; background-color: #f59e0b;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Active Connections</h3>
+                            <div class="chart-container">
+                                <canvas id="connectionsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Server Status</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-server text-green-400 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">Application Server</p>
+                                            <p class="text-xs text-gray-400">app-server-01</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="badge badge-success mr-2">Online</span>
+                                        <span class="text-sm">99.9% uptime</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-database text-green-400 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">Database Server</p>
+                                            <p class="text-xs text-gray-400">db-server-01</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="badge badge-success mr-2">Online</span>
+                                        <span class="text-sm">99.8% uptime</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-hdd text-green-400 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">Storage Server</p>
+                                            <p class="text-xs text-gray-400">storage-server-01</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="badge badge-success mr-2">Online</span>
+                                        <span class="text-sm">99.7% uptime</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-network-wired text-yellow-400 mr-3"></i>
+                                        <div>
+                                            <p class="font-medium">Backup Server</p>
+                                            <p class="text-xs text-gray-400">backup-server-01</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="badge badge-warning mr-2">Maintenance</span>
+                                        <span class="text-sm">Scheduled</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Recent Alerts</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-circle text-yellow-400 mt-1 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium">High Memory Usage</p>
+                                        <p class="text-sm text-gray-400">Memory usage on app-server-01 exceeded 80%</p>
+                                        <p class="text-xs text-gray-500">2 hours ago</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <i class="fas fa-exclamation-circle text-yellow-400 mt-1 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium">Disk Space Warning</p>
+                                        <p class="text-sm text-gray-400">Storage on storage-server-01 is at 85% capacity</p>
+                                        <p class="text-xs text-gray-500">5 hours ago</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-400 mt-1 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium">System Update Completed</p>
+                                        <p class="text-sm text-gray-400">Security patches applied to all servers</p>
+                                        <p class="text-xs text-gray-500">Yesterday</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <i class="fas fa-info-circle text-blue-400 mt-1 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium">Scheduled Maintenance</p>
+                                        <p class="text-sm text-gray-400">Backup server will undergo maintenance on Oct 20, 2023</p>
+                                        <p class="text-xs text-gray-500">2 days ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings -->
+                <div id="admin-settings" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">System Settings</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Security Configuration</h3>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <h4 class="font-medium mb-2">Multi-Factor Authentication</h4>
+                                        <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                            <div>
+                                                <p class="font-medium">Require MFA for all users</p>
+                                                <p class="text-sm text-gray-400">Enhances security by requiring two-factor authentication</p>
+                                            </div>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-medium mb-2">Session Timeout</h4>
+                                        <div class="flex items-center space-x-4">
+                                            <select class="form-input">
+                                                <option>15 minutes</option>
+                                                <option>30 minutes</option>
+                                                <option>1 hour</option>
+                                                <option>4 hours</option>
+                                            </select>
+                                            <button class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+                                                Apply
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-medium mb-2">Password Policy</h4>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="mr-2" checked>
+                                                <span class="text-sm">Minimum 8 characters</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="mr-2" checked>
+                                                <span class="text-sm">Require uppercase letters</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="mr-2" checked>
+                                                <span class="text-sm">Require numbers</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" class="mr-2">
+                                                <span class="text-sm">Require special characters</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Backup & Restore</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="font-medium mb-3">Backup Schedule</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-sm">Daily Backup</span>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" checked>
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-sm">Weekly Backup</span>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox" checked>
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-sm">Monthly Backup</span>
+                                                <label class="toggle-switch">
+                                                    <input type="checkbox">
+                                                    <span class="toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <button class="w-full mt-4 btn-primary py-2 rounded-lg">
+                                            Backup Now
+                                        </button>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-medium mb-3">Recent Backups</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center justify-between p-2 bg-gray-800 rounded">
+                                                <span class="text-sm">Daily Backup</span>
+                                                <span class="text-xs text-gray-400">Oct 16, 2023</span>
+                                            </div>
+                                            <div class="flex items-center justify-between p-2 bg-gray-800 rounded">
+                                                <span class="text-sm">Daily Backup</span>
+                                                <span class="text-xs text-gray-400">Oct 15, 2023</span>
+                                            </div>
+                                            <div class="flex items-center justify-between p-2 bg-gray-800 rounded">
+                                                <span class="text-sm">Weekly Backup</span>
+                                                <span class="text-xs text-gray-400">Oct 14, 2023</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <button class="w-full mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+                                            Restore from Backup
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">System Information</h3>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Version</span>
+                                        <span>v2.4.1</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Last Updated</span>
+                                        <span>Oct 10, 2023</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Database</span>
+                                        <span>PostgreSQL 14.5</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Server</span>
+                                        <span>Ubuntu 22.04 LTS</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">License</span>
+                                        <span>Enterprise</span>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+                                    Check for Updates
+                                </button>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+                                
+                                <div class="space-y-3">
+                                    <button class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-left">
+                                        <i class="fas fa-users-cog mr-2"></i>
+                                        Manage User Roles
+                                    </button>
+                                    <button class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-left">
+                                        <i class="fas fa-shield-alt mr-2"></i>
+                                        Security Audit
+                                    </button>
+                                    <button class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-left">
+                                        <i class="fas fa-database mr-2"></i>
+                                        Database Maintenance
+                                    </button>
+                                    <button class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-left">
+                                        <i class="fas fa-file-export mr-2"></i>
+                                        Export System Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const notification = document.getElementById('notification');
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationCenter = document.getElementById('notificationCenter');
+        const closeNotificationCenter = document.getElementById('closeNotificationCenter');
+        const userModal = document.getElementById('userModal');
+        const addUserBtn = document.getElementById('addUserBtn');
+        const closeUserModal = document.getElementById('closeUserModal');
+        const cancelUserModal = document.getElementById('cancelUserModal');
+        const saveUser = document.getElementById('saveUser');
+        const userForm = document.getElementById('userForm');
+        const userModalTitle = document.getElementById('userModalTitle');
+        const userTableBody = document.getElementById('userTableBody');
+        const userSearch = document.getElementById('userSearch');
+        const roleFilter = document.getElementById('roleFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const digitalRain = document.getElementById('digitalRain');
+        const logoutAdmin = document.getElementById('logoutAdmin');
+        
+        // Portal navigation
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const portalPages = document.querySelectorAll('.portal-page');
+        
+        // User data
+        let users = [
+            {
+                id: 1,
+                firstName: 'John',
+                lastName: 'Smith',
+                email: 'john.smith@example.com',
+                role: 'LEA Officer',
+                department: 'Robbery Division',
+                status: 'Active',
+                lastLogin: 'Oct 16, 2023'
+            },
+            {
+                id: 2,
+                firstName: 'Sarah',
+                lastName: 'Johnson',
+                email: 'sarah.johnson@example.com',
+                role: 'District Attorney',
+                department: 'Prosecution',
+                status: 'Active',
+                lastLogin: 'Oct 15, 2023'
+            },
+            {
+                id: 3,
+                firstName: 'Michael',
+                lastName: 'Brown',
+                email: 'michael.brown@example.com',
+                role: 'Defense Attorney',
+                department: 'Criminal Defense',
+                status: 'Active',
+                lastLogin: 'Oct 14, 2023'
+            },
+            {
+                id: 4,
+                firstName: 'Emily',
+                lastName: 'Davis',
+                email: 'emily.davis@example.com',
+                role: 'LEA Officer',
+                department: 'Fraud Division',
+                status: 'Pending',
+                lastLogin: 'Never'
+            }
+        ];
+        
+        let editingUserId = null;
+        
+        // Create digital rain effect
+        function createDigitalRain() {
+            const columns = Math.floor(window.innerWidth / 20);
+            
+            for (let i = 0; i < columns; i++) {
+                const column = document.createElement('div');
+                column.className = 'rain-column';
+                column.style.left = `${i * 20}px`;
+                column.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                column.style.animationDelay = `${Math.random() * 5}s`;
+                
+                const characters = '01';
+                let text = '';
+                for (let j = 0; j < 20; j++) {
+                    text += characters.charAt(Math.floor(Math.random() * characters.length)) + '<br>';
+                }
+                column.innerHTML = text;
+                
+                digitalRain.appendChild(column);
+            }
+        }
+        
+        // Initialize digital rain
+        createDigitalRain();
+        
+        // Portal navigation
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const page = this.dataset.page;
+                
+                // Update active sidebar item
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Hide all portal pages
+                portalPages.forEach(p => p.classList.add('hidden'));
+                
+                // Show selected page
+                const targetPage = document.getElementById(`admin-${page}`);
+                if (targetPage) {
+                    targetPage.classList.remove('hidden');
+                    
+                    // Initialize charts for the specific page if needed
+                    if (page === 'analytics') {
+                        setTimeout(initAdminAnalyticsCharts, 100);
+                    } else if (page === 'system-monitor') {
+                        setTimeout(initAdminSystemMonitor, 100);
+                        startSystemMonitorSimulation();
+                    }
+                } else {
+                    console.error(`Page not found: admin-${page}`);
+                    showNotification('Page not found', 'error');
+                }
+            });
+        });
+        
+        // Notification system
+        notificationBell.addEventListener('click', function() {
+            notificationCenter.classList.toggle('active');
+        });
+        
+        closeNotificationCenter.addEventListener('click', function() {
+            notificationCenter.classList.remove('active');
+        });
+        
+        // Logout functionality
+        logoutAdmin.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                showNotification('Logging out...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+            }
+        });
+        
+        // User management
+        addUserBtn.addEventListener('click', function() {
+            editingUserId = null;
+            userModalTitle.textContent = 'Add New User';
+            userForm.reset();
+            userModal.classList.add('active');
+        });
+        
+        closeUserModal.addEventListener('click', function() {
+            userModal.classList.remove('active');
+        });
+        
+        cancelUserModal.addEventListener('click', function() {
+            userModal.classList.remove('active');
+        });
+        
+        saveUser.addEventListener('click', function() {
+            if (userForm.checkValidity()) {
+                const formData = new FormData(userForm);
+                const userData = {
+                    firstName: formData.get('firstName'),
+                    lastName: formData.get('lastName'),
+                    email: formData.get('email'),
+                    role: formData.get('role'),
+                    department: formData.get('department'),
+                    status: formData.get('status'),
+                    lastLogin: 'Never'
+                };
+                
+                if (editingUserId) {
+                    // Update existing user
+                    const userIndex = users.findIndex(u => u.id === editingUserId);
+                    if (userIndex !== -1) {
+                        users[userIndex] = { ...users[userIndex], ...userData };
+                        showNotification('User updated successfully', 'success');
+                    }
+                } else {
+                    // Add new user
+                    const newUser = {
+                        id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+                        ...userData
+                    };
+                    users.push(newUser);
+                    showNotification('User added successfully', 'success');
+                }
+                
+                renderUserTable();
+                userModal.classList.remove('active');
+            } else {
+                showNotification('Please fill all required fields', 'error');
+            }
+        });
+        
+        // Edit user
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.edit-user')) {
+                const userId = parseInt(e.target.closest('.edit-user').dataset.id);
+                const user = users.find(u => u.id === userId);
+                
+                if (user) {
+                    editingUserId = userId;
+                    userModalTitle.textContent = 'Edit User';
+                    document.getElementById('firstName').value = user.firstName;
+                    document.getElementById('lastName').value = user.lastName;
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('role').value = user.role;
+                    document.getElementById('department').value = user.department;
+                    document.getElementById('status').value = user.status;
+                    document.getElementById('password').value = '';
+                    
+                    userModal.classList.add('active');
+                }
+            }
+        });
+        
+        // Delete user
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.delete-user')) {
+                const userId = parseInt(e.target.closest('.delete-user').dataset.id);
+                
+                if (confirm('Are you sure you want to delete this user?')) {
+                    users = users.filter(u => u.id !== userId);
+                    renderUserTable();
+                    showNotification('User deleted successfully', 'success');
+                }
+            }
+        });
+        
+        // Approve user
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.approve-user')) {
+                const userId = parseInt(e.target.closest('.approve-user').dataset.id);
+                const userIndex = users.findIndex(u => u.id === userId);
+                
+                if (userIndex !== -1) {
+                    users[userIndex].status = 'Active';
+                    renderUserTable();
+                    showNotification('User approved successfully', 'success');
+                }
+            }
+        });
+        
+        // Reject user
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.reject-user')) {
+                const userId = parseInt(e.target.closest('.reject-user').dataset.id);
+                
+                if (confirm('Are you sure you want to reject this user?')) {
+                    users = users.filter(u => u.id !== userId);
+                    renderUserTable();
+                    showNotification('User rejected successfully', 'success');
+                }
+            }
+        });
+        
+        // Search and filter users
+        userSearch.addEventListener('input', renderUserTable);
+        roleFilter.addEventListener('change', renderUserTable);
+        statusFilter.addEventListener('change', renderUserTable);
+        
+        // Render user table
+        function renderUserTable() {
+            const searchTerm = userSearch.value.toLowerCase();
+            const roleFilterValue = roleFilter.value;
+            const statusFilterValue = statusFilter.value;
+            
+            const filteredUsers = users.filter(user => {
+                const matchesSearch = user.firstName.toLowerCase().includes(searchTerm) || 
+                                    user.lastName.toLowerCase().includes(searchTerm) || 
+                                    user.email.toLowerCase().includes(searchTerm);
+                const matchesRole = roleFilterValue === 'All Roles' || user.role.includes(roleFilterValue);
+                const matchesStatus = statusFilterValue === 'All Status' || user.status === statusFilterValue;
+                
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+            
+            userTableBody.innerHTML = '';
+            
+            filteredUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                
+                const statusBadge = getStatusBadge(user.status);
+                const actionButtons = getActionButtons(user);
+                
+                row.innerHTML = `
+                    <td class="px-4 py-3">
+                        <div class="flex items-center">
+                            <img src="https://picsum.photos/seed/user${user.id}/32/32.jpg" alt="User" class="w-8 h-8 rounded-full mr-3">
+                            <div>
+                                <p class="font-medium">${user.firstName} ${user.lastName}</p>
+                                <p class="text-xs text-gray-400">${user.email}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">${user.role}</td>
+                    <td class="px-4 py-3">${user.department}</td>
+                    <td class="px-4 py-3">${statusBadge}</td>
+                    <td class="px-4 py-3">${user.lastLogin}</td>
+                    <td class="px-4 py-3">${actionButtons}</td>
+                `;
+                
+                userTableBody.appendChild(row);
+            });
+        }
+        
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'Active':
+                    return '<span class="badge badge-success">Active</span>';
+                case 'Pending':
+                    return '<span class="badge badge-warning">Pending Approval</span>';
+                case 'Suspended':
+                    return '<span class="badge badge-danger">Suspended</span>';
+                default:
+                    return '<span class="badge badge-warning">Unknown</span>';
+            }
+        }
+        
+        // Get action buttons HTML
+        function getActionButtons(user) {
+            if (user.status === 'Pending') {
+                return `
+                    <button class="text-green-400 hover:text-green-300 mr-3 approve-user" data-id="${user.id}">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="text-red-400 hover:text-red-300 reject-user" data-id="${user.id}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+            } else {
+                return `
+                    <button class="text-blue-400 hover:text-blue-300 mr-3 edit-user" data-id="${user.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="text-red-400 hover:text-red-300 delete-user" data-id="${user.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+            }
+        }
+        
+        // Notification function
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Initialize charts
+        window.addEventListener('load', function() {
+            // Admin System Usage Chart
+            const ctx2 = document.getElementById('systemUsageChart');
+            if (ctx2) {
+                try {
+                    new Chart(ctx2, {
+                        type: 'line',
+                        data: {
+                            labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                            datasets: [{
+                                label: 'Active Users',
+                                data: [45, 32, 78, 125, 98, 67],
+                                borderColor: 'rgba(59, 130, 246, 1)',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }, {
+                                label: 'CPU Usage (%)',
+                                data: [25, 20, 45, 65, 55, 35],
+                                borderColor: 'rgba(245, 158, 11, 1)',
+                                backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing system usage chart:', error);
+                }
+            }
+        });
+        
+        // Initialize Admin Analytics Charts
+        function initAdminAnalyticsCharts() {
+            // Admin Case Stats Chart
+            const ctx3 = document.getElementById('caseStatsChartAdmin');
+            if (ctx3 && !ctx3.chart) {
+                try {
+                    ctx3.chart = new Chart(ctx3, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['LEA', 'DA/CA', 'Defense', 'Admin'],
+                            datasets: [{
+                                data: [45, 30, 20, 5],
+                                backgroundColor: [
+                                    'rgba(59, 130, 246, 0.8)',
+                                    'rgba(245, 158, 11, 0.8)',
+                                    'rgba(16, 185, 129, 0.8)',
+                                    'rgba(139, 92, 246, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(59, 130, 246, 1)',
+                                    'rgba(245, 158, 11, 1)',
+                                    'rgba(16, 185, 129, 1)',
+                                    'rgba(139, 92, 246, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: 'rgba(255, 255, 255, 0.7)',
+                                        padding: 20
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing case stats chart:', error);
+                }
+            }
+            
+            // Admin User Activity Chart
+            const ctx4 = document.getElementById('userActivityChart');
+            if (ctx4 && !ctx4.chart) {
+                try {
+                    ctx4.chart = new Chart(ctx4, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                            datasets: [{
+                                label: 'Logins',
+                                data: [65, 78, 90, 81, 86, 45, 32],
+                                backgroundColor: 'rgba(139, 92, 246, 0.5)',
+                                borderColor: 'rgba(139, 92, 246, 1)',
+                                borderWidth: 1
+                            }, {
+                                label: 'File Uploads',
+                                data: [28, 35, 42, 38, 45, 22, 15],
+                                backgroundColor: 'rgba(236, 72, 153, 0.5)',
+                                borderColor: 'rgba(236, 72, 153, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing user activity chart:', error);
+                }
+            }
+        }
+        
+        // Initialize Admin System Monitor
+        function initAdminSystemMonitor() {
+            const ctx = document.getElementById('connectionsChart');
+            if (ctx && !ctx.chart) {
+                try {
+                    ctx.chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: Array(20).fill(''),
+                            datasets: [{
+                                label: 'Active Connections',
+                                data: Array(20).fill(0).map(() => Math.floor(Math.random() * 100) + 50),
+                                borderColor: 'rgba(59, 130, 246, 1)',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing connections chart:', error);
+                }
+            }
+        }
+        
+        // Start system monitor simulation
+        function startSystemMonitorSimulation() {
+            setInterval(() => {
+                // Update CPU
+                const cpuValue = Math.floor(Math.random() * 30) + 30;
+                document.getElementById('cpuValue').textContent = cpuValue + '%';
+                document.getElementById('cpuBar').style.width = cpuValue + '%';
+                
+                // Update Memory
+                const memoryValue = Math.floor(Math.random() * 20) + 60;
+                document.getElementById('memoryValue').textContent = memoryValue + '%';
+                document.getElementById('memoryBar').style.width = memoryValue + '%';
+                
+                // Update Disk
+                const diskValue = Math.floor(Math.random() * 5) + 47;
+                document.getElementById('diskValue').textContent = diskValue + '%';
+                document.getElementById('diskBar').style.width = diskValue + '%';
+                
+                // Update Network
+                const networkValue = Math.floor(Math.random() * 40) + 10;
+                document.getElementById('networkValue').textContent = networkValue + '%';
+                document.getElementById('networkBar').style.width = networkValue + '%';
+                
+                // Update connections chart
+                const ctx = document.getElementById('connectionsChart');
+                if (ctx && ctx.chart) {
+                    const chart = ctx.chart;
+                    chart.data.datasets[0].data.shift();
+                    chart.data.datasets[0].data.push(Math.floor(Math.random() * 100) + 50);
+                    chart.update('none');
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

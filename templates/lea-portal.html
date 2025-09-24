@@ -1,0 +1,3296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGAL Portal - Rexus Group</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #ec4899;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .bg-gradient-security {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        
+        .bg-gradient-accent {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(90deg, #ec4899, #f472b6, #f9a8d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .security-border {
+            position: relative;
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .security-border::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.4), transparent);
+            animation: scan 3s infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(236, 72, 153, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+        }
+        
+        .glow {
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+        }
+        
+        .form-input {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.2);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(236, 72, 153, 0.4);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .security-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(236, 72, 153, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(236, 72, 153, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning);
+        }
+        
+        /* Portal Styles */
+        .portal-container {
+            min-height: 100vh;
+            background-color: var(--primary);
+        }
+        
+        .portal-header {
+            background-color: var(--secondary);
+            border-bottom: 1px solid rgba(236, 72, 153, 0.3);
+        }
+        
+        .sidebar {
+            background-color: var(--secondary);
+            border-right: 1px solid rgba(236, 72, 153, 0.3);
+            min-height: calc(100vh - 64px);
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(236, 72, 153, 0.1);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .sidebar-item.active {
+            background-color: rgba(236, 72, 153, 0.2);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .sidebar-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+        
+        .sidebar-item:hover::after {
+            transform: translateX(100%);
+        }
+        
+        .portal-content {
+            padding: 2rem;
+            min-height: calc(100vh - 64px);
+        }
+        
+        .stat-card {
+            background-color: var(--secondary);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(236, 72, 153, 0.2), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(236, 72, 153, 0.2);
+        }
+        
+        .progress-bar {
+            background-color: rgba(236, 72, 153, 0.2);
+            border-radius: 9999px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--accent), var(--pink));
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+        
+        .table-container {
+            background-color: var(--secondary);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background-color: rgba(236, 72, 153, 0.1);
+            padding: 1rem;
+            font-weight: 600;
+        }
+        
+        .table-row {
+            border-bottom: 1px solid rgba(236, 72, 153, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .table-row:hover {
+            background-color: rgba(236, 72, 153, 0.05);
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .badge-purple {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+        }
+        
+        .chart-container {
+            background-color: var(--secondary);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            height: 300px;
+        }
+        
+        /* Holographic effect */
+        .holographic {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .holographic::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            transform: rotate(45deg);
+            animation: holographic-shine 3s infinite;
+        }
+        
+        @keyframes holographic-shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        /* Digital Rain Effect */
+        .digital-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.05;
+            overflow: hidden;
+        }
+        
+        .rain-column {
+            position: absolute;
+            top: -100%;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            color: #ec4899;
+            animation: rain linear infinite;
+        }
+        
+        @keyframes rain {
+            to { transform: translateY(200vh); }
+        }
+        
+        /* Case Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: var(--secondary);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 0.5rem;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            width: 600px;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(236, 72, 153, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 1rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(236, 72, 153, 0.3);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        /* Evidence File */
+        .evidence-file {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .evidence-file:hover {
+            background-color: rgba(30, 41, 59, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(236, 72, 153, 0.2);
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4b5563;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #ec4899;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* File Upload Styles */
+        .upload-area {
+            border: 2px dashed rgba(236, 72, 153, 0.5);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--accent);
+            background-color: rgba(236, 72, 153, 0.1);
+        }
+        
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Progress Bar */
+        .upload-progress {
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .upload-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--pink));
+            width: 0;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-security">
+    <div class="security-pattern"></div>
+    
+    <!-- Digital Rain Effect -->
+    <div class="digital-rain" id="digitalRain"></div>
+    
+    <!-- Notification Container -->
+    <div id="notification" class="notification" role="alert" aria-live="assertive"></div>
+    
+    <!-- Case Modal -->
+    <div class="modal" id="caseModal" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold" id="caseModalTitle">Case Details</h3>
+                <button id="closeCaseModal" class="text-gray-400 hover:text-white" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="caseId">Case ID</label>
+                    <input type="text" id="caseId" class="form-input w-full" readonly>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="caseTitle">Case Title</label>
+                    <input type="text" id="caseTitle" class="form-input w-full" readonly>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-300 mb-2" for="caseType">Case Type</label>
+                        <input type="text" id="caseType" class="form-input w-full" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2" for="casePriority">Priority</label>
+                        <input type="text" id="casePriority" class="form-input w-full" readonly>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="assignedOfficer">Assigned Officer</label>
+                    <input type="text" id="assignedOfficer" class="form-input w-full" readonly>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="caseStatus">Status</label>
+                    <select id="caseStatus" class="form-input w-full">
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Pending Review">Pending Review</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2" for="caseDescription">Description</label>
+                    <textarea id="caseDescription" class="form-input w-full" rows="4" readonly></textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <h4 class="text-gray-300 mb-2">Evidence Files</h4>
+                    <div id="evidenceFiles" class="space-y-2 max-h-40 overflow-y-auto">
+                        <!-- Evidence files will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelCaseModal" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg mr-2">
+                    Close
+                </button>
+                <button id="updateCase" class="btn-primary px-4 py-2 rounded-lg">
+                    Update Status
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- New Case Modal -->
+    <div class="modal" id="newCaseModal" role="dialog" aria-modal="true" aria-labelledby="newCaseModalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold" id="newCaseModalTitle">Create New Case</h3>
+                <button id="closeNewCaseModal" class="text-gray-400 hover:text-white" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="newCaseForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2" for="newCaseTitle">Case Title</label>
+                        <input type="text" id="newCaseTitle" class="form-input w-full" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2" for="newCaseClient">Client Name</label>
+                        <input type="text" id="newCaseClient" class="form-input w-full" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-300 mb-2" for="newCaseType">Case Type</label>
+                            <select id="newCaseType" class="form-input w-full" required>
+                                <option value="">Select Type</option>
+                                <option value="Criminal">Criminal</option>
+                                <option value="Civil">Civil</option>
+                                <option value="Family">Family</option>
+                                <option value="Corporate">Corporate</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2" for="newCasePriority">Priority</label>
+                            <select id="newCasePriority" class="form-input w-full" required>
+                                <option value="">Select Priority</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2" for="newCaseDescription">Description</label>
+                        <textarea id="newCaseDescription" class="form-input w-full" rows="4" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelNewCaseModal" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg mr-2">
+                    Cancel
+                </button>
+                <button id="createNewCase" class="btn-primary px-4 py-2 rounded-lg">
+                    Create Case
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upload Evidence Modal -->
+    <div class="modal" id="uploadEvidenceModal" role="dialog" aria-modal="true" aria-labelledby="uploadEvidenceModalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold" id="uploadEvidenceModalTitle">Upload Evidence</h3>
+                <button id="closeUploadEvidenceModal" class="text-gray-400 hover:text-white" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="uploadEvidenceForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2" for="evidenceCase">Select Case</label>
+                        <select id="evidenceCase" class="form-input w-full" required>
+                            <option value="">Select Case</option>
+                            <option value="LEA-2023-0789">LEA-2023-0789 - State vs. Thompson</option>
+                            <option value="LEA-2023-0782">LEA-2023-0782 - State vs. Rodriguez</option>
+                            <option value="LEA-2023-0775">LEA-2023-0775 - State vs. Garcia</option>
+                            <option value="LEA-2023-0768">LEA-2023-0768 - State vs. Wilson</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2" for="evidenceFile">Select File</label>
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag and drop files here or click to browse</p>
+                            <input type="file" id="evidenceFile" class="hidden" multiple>
+                            <div class="upload-progress" id="uploadProgress" style="display: none;">
+                                <div class="upload-progress-bar" id="uploadProgressBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2" for="evidenceDescription">Description</label>
+                        <textarea id="evidenceDescription" class="form-input w-full" rows="3"></textarea>
+                    </div>
+                    
+                    <div id="selectedFiles" class="mb-4"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelUploadEvidenceModal" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg mr-2">
+                    Cancel
+                </button>
+                <button id="uploadEvidence" class="btn-primary px-4 py-2 rounded-lg">
+                    Upload
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- LEGAL Portal -->
+    <div id="leaPortal" class="portal-container">
+        <header class="portal-header px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gradient-accent rounded-full flex items-center justify-center mr-3 holographic">
+                    <i class="fas fa-gavel text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold orbitron text-gradient">LEGAL Portal</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button id="notificationBell" class="text-gray-400 hover:text-white" aria-label="Notifications">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full pulse-animation"></span>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <img src="{{ url_for('static', filename='user_lea.jpg') }}" alt="User" class="w-8 h-8 rounded-full">
+                    <span class="text-sm">{{ session.get('username', 'Legal Officer') }}</span>
+                </div>
+                <a href="{{ url_for('logout') }}" id="logoutLEA" class="text-gray-400 hover:text-white" aria-label="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </header>
+        
+        <div class="flex">
+            <aside class="sidebar w-64 p-4">
+                <nav class="space-y-2" role="navigation" aria-label="Main navigation">
+                    <div class="sidebar-item active p-3 rounded-lg" data-page="dashboard" tabindex="0" role="button">
+                        <i class="fas fa-tachometer-alt mr-3" aria-hidden="true"></i>
+                        Dashboard
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="cases" tabindex="0" role="button">
+                        <i class="fas fa-briefcase mr-3" aria-hidden="true"></i>
+                        My Cases
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="evidence" tabindex="0" role="button">
+                        <i class="fas fa-folder-open mr-3" aria-hidden="true"></i>
+                        Evidence Repository
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="reports" tabindex="0" role="button">
+                        <i class="fas fa-file-alt mr-3" aria-hidden="true"></i>
+                        Reports
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="research" tabindex="0" role="button">
+                        <i class="fas fa-search mr-3" aria-hidden="true"></i>
+                        Legal Research
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="calendar" tabindex="0" role="button">
+                        <i class="fas fa-calendar-alt mr-3" aria-hidden="true"></i>
+                        Court Calendar
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="settings" tabindex="0" role="button">
+                        <i class="fas fa-cog mr-3" aria-hidden="true"></i>
+                        Settings
+                    </div>
+                </nav>
+            </aside>
+            
+            <main class="portal-content flex-1">
+                <!-- LEGAL Dashboard -->
+                <div id="lea-dashboard" class="portal-page">
+                    <h2 class="text-2xl font-bold mb-6">LEGAL Dashboard</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Active Cases</h3>
+                                <i class="fas fa-briefcase text-pink-400" aria-hidden="true"></i>
+                            </div>
+                            <p class="text-3xl font-bold">32</p>
+                            <p class="text-sm text-gray-400">+5 this month</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Pending Reviews</h3>
+                                <i class="fas fa-clipboard-check text-pink-400" aria-hidden="true"></i>
+                            </div>
+                            <p class="text-3xl font-bold">14</p>
+                            <p class="text-sm text-gray-400">Require attention</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 45%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Evidence Files</h3>
+                                <i class="fas fa-folder text-pink-400" aria-hidden="true"></i>
+                            </div>
+                            <p class="text-3xl font-bold">528</p>
+                            <p class="text-sm text-gray-400">Across all cases</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 90%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Case Success</h3>
+                                <i class="fas fa-chart-line text-pink-400" aria-hidden="true"></i>
+                            </div>
+                            <p class="text-3xl font-bold">92%</p>
+                            <p class="text-sm text-gray-400">Win rate</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 92%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Recent Case Activity</h3>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-plus-circle text-green-400 mt-1 mr-3" aria-hidden="true"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">New Case Assigned</p>
+                                            <p class="text-sm text-gray-400">Case #LEA-2023-0789: State vs. Thompson</p>
+                                            <p class="text-xs text-gray-500">2 hours ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-file-upload text-blue-400 mt-1 mr-3" aria-hidden="true"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">Evidence Uploaded</p>
+                                            <p class="text-sm text-gray-400">7 new files added to Case #LEA-2023-0782</p>
+                                            <p class="text-xs text-gray-500">5 hours ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-gavel text-yellow-400 mt-1 mr-3" aria-hidden="true"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">Hearing Scheduled</p>
+                                            <p class="text-sm text-gray-400">Preliminary hearing for Case #LEA-2023-0775 set for Oct 20</p>
+                                            <p class="text-xs text-gray-500">Yesterday</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-check-circle text-green-400 mt-1 mr-3" aria-hidden="true"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">Case Resolved</p>
+                                            <p class="text-sm text-gray-400">Case #LEA-2023-0768: State vs. Wilson - Favorable verdict</p>
+                                            <p class="text-xs text-gray-500">2 days ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Case Distribution</h3>
+                            <div class="chart-container">
+                                <canvas id="caseDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Upcoming Court Dates</h3>
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-4">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-800">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left">Date</th>
+                                            <th class="px-4 py-3 text-left">Case ID</th>
+                                            <th class="px-4 py-3 text-left">Case Title</th>
+                                            <th class="px-4 py-3 text-left">Type</th>
+                                            <th class="px-4 py-3 text-left">Location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="table-row">
+                                            <td class="px-4 py-3">Oct 18, 2023</td>
+                                            <td class="px-4 py-3">LEA-2023-0775</td>
+                                            <td class="px-4 py-3">State vs. Garcia</td>
+                                            <td class="px-4 py-3">Preliminary Hearing</td>
+                                            <td class="px-4 py-3">Courtroom 3B</td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-4 py-3">Oct 20, 2023</td>
+                                            <td class="px-4 py-3">LEA-2023-0775</td>
+                                            <td class="px-4 py-3">State vs. Garcia</td>
+                                            <td class="px-4 py-3">Arraignment</td>
+                                            <td class="px-4 py-3">Courtroom 2A</td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-4 py-3">Oct 23, 2023</td>
+                                            <td class="px-4 py-3">LEA-2023-0782</td>
+                                            <td class="px-4 py-3">State vs. Rodriguez</td>
+                                            <td class="px-4 py-3">Pre-Trial Conference</td>
+                                            <td class="px-4 py-3">Courtroom 4C</td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-4 py-3">Oct 26, 2023</td>
+                                            <td class="px-4 py-3">LEA-2023-0789</td>
+                                            <td class="px-4 py-3">State vs. Thompson</td>
+                                            <td class="px-4 py-3">Preliminary Hearing</td>
+                                            <td class="px-4 py-3">Courtroom 1A</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- My Cases -->
+                <div id="lea-cases" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">My Cases</h2>
+                    
+                    <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <input type="text" id="caseSearch" class="form-input w-64" placeholder="Search cases..." aria-label="Search cases">
+                                <select id="caseTypeFilter" class="form-input" aria-label="Filter by case type">
+                                    <option>All Types</option>
+                                    <option>Civil</option>
+                                    <option>Criminal</option>
+                                    <option>Family</option>
+                                    <option>Corporate</option>
+                                </select>
+                                <select id="caseStatusFilter" class="form-input" aria-label="Filter by case status">
+                                    <option>All Statuses</option>
+                                    <option>Open</option>
+                                    <option>In Progress</option>
+                                    <option>Pending Review</option>
+                                    <option>Closed</option>
+                                </select>
+                            </div>
+                            <button id="newCaseBtn" class="btn-primary px-4 py-2 rounded-lg">
+                                <i class="fas fa-plus mr-2" aria-hidden="true"></i>New Case
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">Case ID</th>
+                                        <th class="px-4 py-3 text-left">Title</th>
+                                        <th class="px-4 py-3 text-left">Client</th>
+                                        <th class="px-4 py-3 text-left">Type</th>
+                                        <th class="px-4 py-3 text-left">Priority</th>
+                                        <th class="px-4 py-3 text-left">Status</th>
+                                        <th class="px-4 py-3 text-left">Last Updated</th>
+                                        <th class="px-4 py-3 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="caseTableBody">
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">LEA-2023-0789</td>
+                                        <td class="px-4 py-3">State vs. Thompson</td>
+                                        <td class="px-4 py-3">John Thompson</td>
+                                        <td class="px-4 py-3">Criminal</td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-danger">High</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-warning">In Progress</span>
+                                        </td>
+                                        <td class="px-4 py-3">Oct 16, 2023</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="1" aria-label="View case">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300 mr-3 edit-case" data-id="1" aria-label="Edit case">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">LEA-2023-0782</td>
+                                        <td class="px-4 py-3">State vs. Rodriguez</td>
+                                        <td class="px-4 py-3">Maria Rodriguez</td>
+                                        <td class="px-4 py-3">Civil</td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-warning">Medium</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-warning">In Progress</span>
+                                        </td>
+                                        <td class="px-4 py-3">Oct 15, 2023</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="2" aria-label="View case">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300 mr-3 edit-case" data-id="2" aria-label="Edit case">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">LEA-2023-0775</td>
+                                        <td class="px-4 py-3">State vs. Garcia</td>
+                                        <td class="px-4 py-3">Carlos Garcia</td>
+                                        <td class="px-4 py-3">Criminal</td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-danger">High</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-success">Open</span>
+                                        </td>
+                                        <td class="px-4 py-3">Oct 14, 2023</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="3" aria-label="View case">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300 mr-3 edit-case" data-id="3" aria-label="Edit case">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">LEA-2023-0768</td>
+                                        <td class="px-4 py-3">State vs. Wilson</td>
+                                        <td class="px-4 py-3">Robert Wilson</td>
+                                        <td class="px-4 py-3">Criminal</td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-danger">High</span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge badge-purple">Closed</span>
+                                        </td>
+                                        <td class="px-4 py-3">Oct 10, 2023</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="4" aria-label="View case">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="text-gray-400 hover:text-gray-300" disabled>
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Evidence Repository -->
+                <div id="lea-evidence" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Evidence Repository</h2>
+                    
+                    <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <input type="text" id="evidenceSearch" class="form-input w-64" placeholder="Search evidence..." aria-label="Search evidence">
+                                <select id="evidenceTypeFilter" class="form-input" aria-label="Filter by evidence type">
+                                    <option>All Types</option>
+                                    <option>Documents</option>
+                                    <option>Images</option>
+                                    <option>Videos</option>
+                                    <option>Audio</option>
+                                    <option>Other</option>
+                                </select>
+                                <select id="evidenceCaseFilter" class="form-input" aria-label="Filter by case">
+                                    <option>All Cases</option>
+                                    <option>LEA-2023-0789</option>
+                                    <option>LEA-2023-0782</option>
+                                    <option>LEA-2023-0775</option>
+                                    <option>LEA-2023-0768</option>
+                                </select>
+                            </div>
+                            <button id="uploadEvidenceBtn" class="btn-primary px-4 py-2 rounded-lg">
+                                <i class="fas fa-upload mr-2" aria-hidden="true"></i>Upload Evidence
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="evidenceGrid">
+                            <div class="evidence-file">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-pdf text-red-400 text-xl mr-2" aria-hidden="true"></i>
+                                        <div>
+                                            <p class="font-medium">Police_Report.pdf</p>
+                                            <p class="text-xs text-gray-400">2.4 MB</p>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-400 mb-2">
+                                    <p>Case: LEA-2023-0789</p>
+                                    <p>Uploaded: Oct 16, 2023</p>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="badge badge-success">Verified</span>
+                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="evidence-file">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-image text-green-400 text-xl mr-2" aria-hidden="true"></i>
+                                        <div>
+                                            <p class="font-medium">Crime_Scene_Photos.zip</p>
+                                            <p class="text-xs text-gray-400">456 MB</p>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-400 mb-2">
+                                    <p>Case: LEA-2023-0782</p>
+                                    <p>Uploaded: Oct 15, 2023</p>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="badge badge-success">Verified</span>
+                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="evidence-file">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-video text-blue-400 text-xl mr-2" aria-hidden="true"></i>
+                                        <div>
+                                            <p class="font-medium">Interview_Witness.mp4</p>
+                                            <p class="text-xs text-gray-400">1.2 GB</p>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-400 mb-2">
+                                    <p>Case: LEA-2023-0775</p>
+                                    <p>Uploaded: Oct 14, 2023</p>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="badge badge-warning">Pending Review</span>
+                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="evidence-file">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-audio text-yellow-400 text-xl mr-2" aria-hidden="true"></i>
+                                        <div>
+                                            <p class="font-medium">911_Call.mp3</p>
+                                            <p class="text-xs text-gray-400">24 MB</p>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-400 mb-2">
+                                    <p>Case: LEA-2023-0789</p>
+                                    <p>Uploaded: Oct 13, 2023</p>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="badge badge-success">Verified</span>
+                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="evidence-file">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-word text-blue-400 text-xl mr-2" aria-hidden="true"></i>
+                                        <div>
+                                            <p class="font-medium">Witness_Statements.docx</p>
+                                            <p class="text-xs text-gray-400">1.8 MB</p>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-400 mb-2">
+                                    <p>Case: LEA-2023-0782</p>
+                                    <p>Uploaded: Oct 12, 2023</p>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="badge badge-success">Verified</span>
+                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="evidence-file">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-excel text-green-400 text-xl mr-2" aria-hidden="true"></i>
+                                        <div>
+                                            <p class="font-medium">Financial_Records.xlsx</p>
+                                            <p class="text-xs text-gray-400">3.2 MB</p>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="text-xs text-gray-400 mb-2">
+                                    <p>Case: LEA-2023-0775</p>
+                                    <p>Uploaded: Oct 11, 2023</p>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="badge badge-warning">Pending Review</span>
+                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reports -->
+                <div id="lea-reports" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Reports</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Case Statistics</h3>
+                                <div class="chart-container">
+                                    <canvas id="caseTypeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Case Outcomes</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm">Favorable</span>
+                                            <span class="text-sm">92%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 92%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm">Partial</span>
+                                            <span class="text-sm">5%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 5%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm">Unfavorable</span>
+                                            <span class="text-sm">3%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 3%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Generate Report</h3>
+                                <form id="generateReportForm" class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="reportType">Report Type</label>
+                                        <select id="reportType" class="form-input w-full">
+                                            <option>Case Summary</option>
+                                            <option>Evidence Inventory</option>
+                                            <option>Court Appearance</option>
+                                            <option>Monthly Statistics</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Date Range</label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <input type="date" id="startDate" class="form-input">
+                                            <input type="date" id="endDate" class="form-input">
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="reportFormat">Format</label>
+                                        <select id="reportFormat" class="form-input w-full">
+                                            <option>PDF</option>
+                                            <option>Excel</option>
+                                            <option>CSV</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-primary w-full py-2 rounded-lg">
+                                        Generate Report
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Recent Reports</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">Report Name</th>
+                                        <th class="px-4 py-3 text-left">Type</th>
+                                        <th class="px-4 py-3 text-left">Generated</th>
+                                        <th class="px-4 py-3 text-left">Format</th>
+                                        <th class="px-4 py-3 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">Monthly Case Summary - September</td>
+                                        <td class="px-4 py-3">Case Summary</td>
+                                        <td class="px-4 py-3">Oct 1, 2023</td>
+                                        <td class="px-4 py-3">PDF</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-pink-400 hover:text-pink-300 mr-3" aria-label="Download report">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300" aria-label="Share report">
+                                                <i class="fas fa-share"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">Q3 Case Statistics</td>
+                                        <td class="px-4 py-3">Statistics</td>
+                                        <td class="px-4 py-3">Sep 30, 2023</td>
+                                        <td class="px-4 py-3">Excel</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-pink-400 hover:text-pink-300 mr-3" aria-label="Download report">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300" aria-label="Share report">
+                                                <i class="fas fa-share"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">Evidence Inventory - LEA-2023-0775</td>
+                                        <td class="px-4 py-3">Evidence</td>
+                                        <td class="px-4 py-3">Sep 25, 2023</td>
+                                        <td class="px-4 py-3">PDF</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-pink-400 hover:text-pink-300 mr-3" aria-label="Download report">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300" aria-label="Share report">
+                                                <i class="fas fa-share"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">Court Appearances - September</td>
+                                        <td class="px-4 py-3">Court</td>
+                                        <td class="px-4 py-3">Sep 20, 2023</td>
+                                        <td class="px-4 py-3">PDF</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-pink-400 hover:text-pink-300 mr-3" aria-label="Download report">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300" aria-label="Share report">
+                                                <i class="fas fa-share"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Legal Research -->
+                <div id="lea-research" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Legal Research</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-lg font-semibold">Research Library</h3>
+                                    <div class="flex items-center space-x-4">
+                                        <input type="text" id="researchSearch" class="form-input w-64" placeholder="Search legal resources..." aria-label="Search legal resources">
+                                        <select id="researchCategoryFilter" class="form-input" aria-label="Filter by category">
+                                            <option>All Categories</option>
+                                            <option>Case Law</option>
+                                            <option>Statutes</option>
+                                            <option>Regulations</option>
+                                            <option>Legal Precedents</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4" id="researchResources">
+                                    <div class="border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors cursor-pointer">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-medium text-lg">State v. Johnson, 2023</h4>
+                                                <p class="text-sm text-gray-400 mt-1">Supreme Court ruling on search and seizure procedures</p>
+                                                <div class="flex items-center mt-2">
+                                                    <span class="badge badge-purple mr-2">Case Law</span>
+                                                    <span class="text-xs text-gray-500">Added: Oct 10, 2023</span>
+                                                </div>
+                                            </div>
+                                            <button class="text-pink-400 hover:text-pink-300" aria-label="Bookmark">
+                                                <i class="fas fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors cursor-pointer">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-medium text-lg">Criminal Procedure Code, Section 145</h4>
+                                                <p class="text-sm text-gray-400 mt-1">Statute regarding evidence collection and preservation</p>
+                                                <div class="flex items-center mt-2">
+                                                    <span class="badge badge-purple mr-2">Statute</span>
+                                                    <span class="text-xs text-gray-500">Added: Sep 28, 2023</span>
+                                                </div>
+                                            </div>
+                                            <button class="text-pink-400 hover:text-pink-300" aria-label="Bookmark">
+                                                <i class="fas fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors cursor-pointer">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-medium text-lg">Evidence Handling Regulations</h4>
+                                                <p class="text-sm text-gray-400 mt-1">Department of Justice regulations on digital evidence</p>
+                                                <div class="flex items-center mt-2">
+                                                    <span class="badge badge-purple mr-2">Regulation</span>
+                                                    <span class="text-xs text-gray-500">Added: Sep 15, 2023</span>
+                                                </div>
+                                            </div>
+                                            <button class="text-pink-400 hover:text-pink-300" aria-label="Bookmark">
+                                                <i class="fas fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors cursor-pointer">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="font-medium text-lg">Miranda Rights Precedents</h4>
+                                                <p class="text-sm text-gray-400 mt-1">Collection of key Miranda rights case precedents</p>
+                                                <div class="flex items-center mt-2">
+                                                    <span class="badge badge-purple mr-2">Legal Precedent</span>
+                                                    <span class="text-xs text-gray-500">Added: Sep 5, 2023</span>
+                                                </div>
+                                            </div>
+                                            <button class="text-pink-400 hover:text-pink-300" aria-label="Bookmark">
+                                                <i class="fas fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6 flex justify-center">
+                                    <button id="loadMoreResources" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
+                                        Load More
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Saved Research</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Fourth Amendment Case Law</p>
+                                            <p class="text-xs text-gray-400">12 resources</p>
+                                        </div>
+                                        <button class="text-pink-400 hover:text-pink-300" aria-label="Open folder">
+                                            <i class="fas fa-folder-open"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Digital Evidence Rules</p>
+                                            <p class="text-xs text-gray-400">8 resources</p>
+                                        </div>
+                                        <button class="text-pink-400 hover:text-pink-300" aria-label="Open folder">
+                                            <i class="fas fa-folder-open"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Witness Testimony Guidelines</p>
+                                            <p class="text-xs text-gray-400">5 resources</p>
+                                        </div>
+                                        <button class="text-pink-400 hover:text-pink-300" aria-label="Open folder">
+                                            <i class="fas fa-folder-open"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <button id="createNewFolder" class="w-full mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-center">
+                                        Create New Folder
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                                <div class="space-y-3">
+                                    <a href="#" class="block p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                                        <p class="font-medium">State Law Library</p>
+                                        <p class="text-xs text-gray-400">Access state statutes and regulations</p>
+                                    </a>
+                                    
+                                    <a href="#" class="block p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                                        <p class="font-medium">Federal Case Database</p>
+                                        <p class="text-xs text-gray-400">Search federal court decisions</p>
+                                    </a>
+                                    
+                                    <a href="#" class="block p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                                        <p class="font-medium">Legal Forms Repository</p>
+                                        <p class="text-xs text-gray-400">Download court-approved forms</p>
+                                    </a>
+                                    
+                                    <a href="#" class="block p-3 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                                        <p class="font-medium">Bar Association Resources</p>
+                                        <p class="text-xs text-gray-400">Professional guidelines and ethics</p>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Court Calendar -->
+                <div id="lea-calendar" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Court Calendar</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-lg font-semibold">October 2023</h3>
+                                    <div class="flex space-x-2">
+                                        <button class="p-2 rounded-lg hover:bg-gray-700" aria-label="Previous month">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button class="p-2 rounded-lg hover:bg-gray-700" aria-label="Next month">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-7 gap-1 mb-4">
+                                    <div class="text-center py-2 text-gray-400">Sun</div>
+                                    <div class="text-center py-2 text-gray-400">Mon</div>
+                                    <div class="text-center py-2 text-gray-400">Tue</div>
+                                    <div class="text-center py-2 text-gray-400">Wed</div>
+                                    <div class="text-center py-2 text-gray-400">Thu</div>
+                                    <div class="text-center py-2 text-gray-400">Fri</div>
+                                    <div class="text-center py-2 text-gray-400">Sat</div>
+                                </div>
+                                
+                                <div class="grid grid-cols-7 gap-1" id="calendarDays">
+                                    <!-- Calendar days will be generated here -->
+                                </div>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mt-6">
+                                <h3 class="text-lg font-semibold mb-4">Today's Schedule</h3>
+                                <div class="space-y-4" id="todaySchedule">
+                                    <div class="flex">
+                                        <div class="w-16 text-sm text-gray-400">9:00 AM</div>
+                                        <div class="flex-1 ml-4 pb-4 border-l border-gray-700 pl-4">
+                                            <div class="bg-gray-800 rounded-lg p-3">
+                                                <p class="font-medium">Client Meeting</p>
+                                                <p class="text-sm text-gray-400">Conference Room A</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex">
+                                        <div class="w-16 text-sm text-gray-400">11:00 AM</div>
+                                        <div class="flex-1 ml-4 pb-4 border-l border-gray-700 pl-4">
+                                            <div class="bg-pink-900 bg-opacity-30 rounded-lg p-3 border border-pink-700">
+                                                <p class="font-medium">Preliminary Hearing - Garcia vs. State</p>
+                                                <p class="text-sm text-gray-400">Courtroom 3B</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex">
+                                        <div class="w-16 text-sm text-gray-400">2:00 PM</div>
+                                        <div class="flex-1 ml-4 pb-4 border-l border-gray-700 pl-4">
+                                            <div class="bg-gray-800 rounded-lg p-3">
+                                                <p class="font-medium">Case Preparation</p>
+                                                <p class="text-sm text-gray-400">Office</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex">
+                                        <div class="w-16 text-sm text-gray-400">4:00 PM</div>
+                                        <div class="flex-1 ml-4 pb-4 border-l border-gray-700 pl-4">
+                                            <div class="bg-gray-800 rounded-lg p-3">
+                                                <p class="font-medium">Legal Research</p>
+                                                <p class="text-sm text-gray-400">Law Library</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Upcoming Hearings</h3>
+                                <div class="space-y-4">
+                                    <div class="border-l-4 border-pink-500 pl-4 py-1">
+                                        <div class="flex justify-between">
+                                            <p class="font-medium">Garcia vs. State</p>
+                                            <span class="text-sm text-gray-400">Oct 18</span>
+                                        </div>
+                                        <p class="text-sm text-gray-400">Preliminary Hearing</p>
+                                        <p class="text-sm text-gray-400">Courtroom 3B</p>
+                                    </div>
+                                    
+                                    <div class="border-l-4 border-pink-500 pl-4 py-1">
+                                        <div class="flex justify-between">
+                                            <p class="font-medium">Garcia vs. State</p>
+                                            <span class="text-sm text-gray-400">Oct 20</span>
+                                        </div>
+                                        <p class="text-sm text-gray-400">Arraignment</p>
+                                        <p class="text-sm text-gray-400">Courtroom 2A</p>
+                                    </div>
+                                    
+                                    <div class="border-l-4 border-pink-500 pl-4 py-1">
+                                        <div class="flex justify-between">
+                                            <p class="font-medium">Rodriguez vs. State</p>
+                                            <span class="text-sm text-gray-400">Oct 24</span>
+                                        </div>
+                                        <p class="text-sm text-gray-400">Pre-Trial Conference</p>
+                                        <p class="text-sm text-gray-400">Courtroom 4C</p>
+                                    </div>
+                                    
+                                    <div class="border-l-4 border-pink-500 pl-4 py-1">
+                                        <div class="flex justify-between">
+                                            <p class="font-medium">Thompson vs. State</p>
+                                            <span class="text-sm text-gray-400">Oct 25</span>
+                                        </div>
+                                        <p class="text-sm text-gray-400">Preliminary Hearing</p>
+                                        <p class="text-sm text-gray-400">Courtroom 1A</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Add New Event</h3>
+                                <form id="addEventForm" class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="eventTitle">Event Title</label>
+                                        <input type="text" id="eventTitle" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="eventDate">Date</label>
+                                        <input type="date" id="eventDate" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="eventTime">Time</label>
+                                        <input type="time" id="eventTime" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="eventLocation">Location</label>
+                                        <input type="text" id="eventLocation" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="eventCase">Related Case</label>
+                                        <select id="eventCase" class="form-input w-full">
+                                            <option>None</option>
+                                            <option>LEA-2023-0789</option>
+                                            <option>LEA-2023-0782</option>
+                                            <option>LEA-2023-0775</option>
+                                            <option>LEA-2023-0768</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-primary w-full py-2 rounded-lg">
+                                        Add Event
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings -->
+                <div id="lea-settings" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Settings</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Profile Settings</h3>
+                                
+                                <form id="profileSettingsForm" class="space-y-4">
+                                    <div class="flex items-center mb-6">
+                                        <img src="{{ url_for('static', filename='user_lea.jpg') }}" alt="Profile" class="w-20 h-20 rounded-full mr-4">
+                                        <div>
+                                            <button type="button" class="btn-primary px-4 py-2 rounded-lg">
+                                                Change Photo
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-300 mb-2" for="firstName">First Name</label>
+                                            <input type="text" id="firstName" class="form-input w-full" value="Legal" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-300 mb-2" for="lastName">Last Name</label>
+                                            <input type="text" id="lastName" class="form-input w-full" value="Officer" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="email">Email</label>
+                                        <input type="email" id="email" class="form-input w-full" value="legal@rexusgroup.com" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="department">Department</label>
+                                        <input type="text" id="department" class="form-input w-full" value="Legal Affairs" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="specialization">Specialization</label>
+                                        <input type="text" id="specialization" class="form-input w-full" value="Criminal Law" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="bio">Bio</label>
+                                        <textarea id="bio" class="form-input w-full" rows="3">Experienced legal officer with expertise in criminal law and legal research.</textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-primary px-4 py-2 rounded-lg">
+                                        Save Changes
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Notification Preferences</h3>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Case Updates</p>
+                                            <p class="text-sm text-gray-400">Notify me when cases are updated</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="caseUpdates" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">New Evidence</p>
+                                            <p class="text-sm text-gray-400">Notify me when new evidence is added</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="newEvidence" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Court Dates</p>
+                                            <p class="text-sm text-gray-400">Notify me about upcoming court dates</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="courtDates" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Legal Updates</p>
+                                            <p class="text-sm text-gray-400">Notify me about new legal resources</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="legalUpdates" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">System Updates</p>
+                                            <p class="text-sm text-gray-400">Notify me about system maintenance</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="systemUpdates">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Security</h3>
+                                
+                                <form id="passwordChangeForm" class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="currentPassword">Current Password</label>
+                                        <input type="password" id="currentPassword" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="newPassword">New Password</label>
+                                        <input type="password" id="newPassword" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2" for="confirmPassword">Confirm New Password</label>
+                                        <input type="password" id="confirmPassword" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-primary w-full py-2 rounded-lg">
+                                        Update Password
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Two-Factor Authentication</h3>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Enable 2FA</p>
+                                            <p class="text-sm text-gray-400">Add an extra layer of security</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="enable2FA">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="p-3 bg-gray-800 rounded-lg">
+                                        <p class="font-medium mb-2">Recovery Codes</p>
+                                        <p class="text-sm text-gray-400 mb-3">Save these codes in a secure place</p>
+                                        <div class="bg-gray-900 p-3 rounded font-mono text-sm">
+                                            <div>ABCD-EFGH-IJKL</div>
+                                            <div>MNOP-QRST-UVWX</div>
+                                            <div>YZAB-CDEF-GHIJ</div>
+                                            <div>KLMN-OPQR-STUV</div>
+                                        </div>
+                                        <button id="generateNewCodes" class="mt-3 text-sm text-pink-400 hover:text-pink-300">
+                                            Generate New Codes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const notification = document.getElementById('notification');
+        const notificationBell = document.getElementById('notificationBell');
+        const caseModal = document.getElementById('caseModal');
+        const closeCaseModal = document.getElementById('closeCaseModal');
+        const cancelCaseModal = document.getElementById('cancelCaseModal');
+        const updateCase = document.getElementById('updateCase');
+        const caseTableBody = document.getElementById('caseTableBody');
+        const caseSearch = document.getElementById('caseSearch');
+        const caseTypeFilter = document.getElementById('caseTypeFilter');
+        const caseStatusFilter = document.getElementById('caseStatusFilter');
+        const evidenceSearch = document.getElementById('evidenceSearch');
+        const evidenceTypeFilter = document.getElementById('evidenceTypeFilter');
+        const evidenceCaseFilter = document.getElementById('evidenceCaseFilter');
+        const researchSearch = document.getElementById('researchSearch');
+        const researchCategoryFilter = document.getElementById('researchCategoryFilter');
+        const digitalRain = document.getElementById('digitalRain');
+        
+        // New modals
+        const newCaseModal = document.getElementById('newCaseModal');
+        const closeNewCaseModal = document.getElementById('closeNewCaseModal');
+        const cancelNewCaseModal = document.getElementById('cancelNewCaseModal');
+        const createNewCase = document.getElementById('createNewCase');
+        const newCaseBtn = document.getElementById('newCaseBtn');
+        const newCaseForm = document.getElementById('newCaseForm');
+        
+        const uploadEvidenceModal = document.getElementById('uploadEvidenceModal');
+        const closeUploadEvidenceModal = document.getElementById('closeUploadEvidenceModal');
+        const cancelUploadEvidenceModal = document.getElementById('cancelUploadEvidenceModal');
+        const uploadEvidence = document.getElementById('uploadEvidence');
+        const uploadEvidenceBtn = document.getElementById('uploadEvidenceBtn');
+        const uploadEvidenceForm = document.getElementById('uploadEvidenceForm');
+        const uploadArea = document.getElementById('uploadArea');
+        const evidenceFile = document.getElementById('evidenceFile');
+        const selectedFiles = document.getElementById('selectedFiles');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const uploadProgressBar = document.getElementById('uploadProgressBar');
+        
+        // Portal navigation
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const portalPages = document.querySelectorAll('.portal-page');
+        
+        // Forms
+        const generateReportForm = document.getElementById('generateReportForm');
+        const addEventForm = document.getElementById('addEventForm');
+        const profileSettingsForm = document.getElementById('profileSettingsForm');
+        const passwordChangeForm = document.getElementById('passwordChangeForm');
+        
+        // Buttons
+        const loadMoreResources = document.getElementById('loadMoreResources');
+        const createNewFolder = document.getElementById('createNewFolder');
+        const generateNewCodes = document.getElementById('generateNewCodes');
+        
+        // Calendar elements
+        const calendarDays = document.getElementById('calendarDays');
+        const todaySchedule = document.getElementById('todaySchedule');
+        const researchResources = document.getElementById('researchResources');
+        
+        // Case data
+        let cases = [
+            {
+                id: 1,
+                caseId: 'LEA-2023-0789',
+                title: 'State vs. Thompson',
+                client: 'John Thompson',
+                type: 'Criminal',
+                priority: 'High',
+                status: 'In Progress',
+                assignedOfficer: 'Legal Officer',
+                lastUpdated: 'Oct 16, 2023',
+                description: 'Client accused of armed robbery at convenience store on September 15, 2023. Building defense based on mistaken identity and alibi witnesses.',
+                evidenceFiles: [
+                    { name: 'Police_Report.pdf', size: '2.4 MB', type: 'Document', status: 'Verified' },
+                    { name: 'Surveillance_Footage.mp4', size: '1.2 GB', type: 'Video', status: 'Verified' },
+                    { name: 'Alibi_Statements.docx', size: '1.8 MB', type: 'Document', status: 'Verified' }
+                ]
+            },
+            {
+                id: 2,
+                caseId: 'LEA-2023-0782',
+                title: 'State vs. Rodriguez',
+                client: 'Maria Rodriguez',
+                type: 'Civil',
+                priority: 'Medium',
+                status: 'In Progress',
+                assignedOfficer: 'Legal Officer',
+                lastUpdated: 'Oct 15, 2023',
+                description: 'Civil case involving breach of contract. Client seeking damages for failure to deliver services as agreed.',
+                evidenceFiles: [
+                    { name: 'Contract_Agreement.pdf', size: '1.2 MB', type: 'Document', status: 'Verified' },
+                    { name: 'Email_Correspondence.zip', size: '45 MB', type: 'Documents', status: 'Verified' },
+                    { name: 'Financial_Records.xlsx', size: '2.1 MB', type: 'Spreadsheet', status: 'Verified' }
+                ]
+            },
+            {
+                id: 3,
+                caseId: 'LEA-2023-0775',
+                title: 'State vs. Garcia',
+                client: 'Carlos Garcia',
+                type: 'Criminal',
+                priority: 'High',
+                status: 'Open',
+                assignedOfficer: 'Legal Officer',
+                lastUpdated: 'Oct 14, 2023',
+                description: 'Client accused of assault with a deadly weapon. Incident occurred at bar on October 10, 2023. Claiming self-defense.',
+                evidenceFiles: [
+                    { name: 'Medical_Records.pdf', size: '3.5 MB', type: 'Document', status: 'Verified' },
+                    { name: 'Interview_Client.mp4', size: '1.2 GB', type: 'Video', status: 'Pending Review' },
+                    { name: 'Character_References.pdf', size: '2.8 MB', type: 'Document', status: 'Pending Review' }
+                ]
+            },
+            {
+                id: 4,
+                caseId: 'LEA-2023-0768',
+                title: 'State vs. Wilson',
+                client: 'Robert Wilson',
+                type: 'Criminal',
+                priority: 'High',
+                status: 'Closed',
+                assignedOfficer: 'Legal Officer',
+                lastUpdated: 'Oct 10, 2023',
+                description: 'Client accused of burglary and grand theft. Incident occurred at residential property on September 20, 2023. Case concluded with favorable verdict.',
+                evidenceFiles: [
+                    { name: 'Forensic_Report.pdf', size: '4.2 MB', type: 'Document', status: 'Verified' },
+                    { name: 'Defense_Argument.pdf', size: '2.8 MB', type: 'Document', status: 'Verified' },
+                    { name: 'Court_Transcript.pdf', size: '5.1 MB', type: 'Document', status: 'Verified' }
+                ]
+            }
+        ];
+        
+        // Evidence data
+        let evidenceFiles = [
+            {
+                id: 1,
+                name: 'Police_Report.pdf',
+                size: '2.4 MB',
+                type: 'Document',
+                caseId: 'LEA-2023-0789',
+                status: 'Verified',
+                uploaded: 'Oct 16, 2023'
+            },
+            {
+                id: 2,
+                name: 'Crime_Scene_Photos.zip',
+                size: '456 MB',
+                type: 'Images',
+                caseId: 'LEA-2023-0782',
+                status: 'Verified',
+                uploaded: 'Oct 15, 2023'
+            },
+            {
+                id: 3,
+                name: 'Interview_Witness.mp4',
+                size: '1.2 GB',
+                type: 'Video',
+                caseId: 'LEA-2023-0775',
+                status: 'Pending Review',
+                uploaded: 'Oct 14, 2023'
+            },
+            {
+                id: 4,
+                name: '911_Call.mp3',
+                size: '24 MB',
+                type: 'Audio',
+                caseId: 'LEA-2023-0789',
+                status: 'Verified',
+                uploaded: 'Oct 13, 2023'
+            },
+            {
+                id: 5,
+                name: 'Witness_Statements.docx',
+                size: '1.8 MB',
+                type: 'Document',
+                caseId: 'LEA-2023-0782',
+                status: 'Verified',
+                uploaded: 'Oct 12, 2023'
+            },
+            {
+                id: 6,
+                name: 'Financial_Records.xlsx',
+                size: '3.2 MB',
+                type: 'Spreadsheet',
+                caseId: 'LEA-2023-0775',
+                status: 'Pending Review',
+                uploaded: 'Oct 11, 2023'
+            }
+        ];
+        
+        // Research resources data
+        let researchResourcesData = [
+            {
+                id: 1,
+                title: 'State v. Johnson, 2023',
+                description: 'Supreme Court ruling on search and seizure procedures',
+                category: 'Case Law',
+                added: 'Oct 10, 2023'
+            },
+            {
+                id: 2,
+                title: 'Criminal Procedure Code, Section 145',
+                description: 'Statute regarding evidence collection and preservation',
+                category: 'Statute',
+                added: 'Sep 28, 2023'
+            },
+            {
+                id: 3,
+                title: 'Evidence Handling Regulations',
+                description: 'Department of Justice regulations on digital evidence',
+                category: 'Regulation',
+                added: 'Sep 15, 2023'
+            },
+            {
+                id: 4,
+                title: 'Miranda Rights Precedents',
+                description: 'Collection of key Miranda rights case precedents',
+                category: 'Legal Precedent',
+                added: 'Sep 5, 2023'
+            }
+        ];
+        
+        // Calendar events data
+        let calendarEvents = [
+            {
+                id: 1,
+                title: 'Client Meeting',
+                date: new Date().toISOString().split('T')[0],
+                time: '9:00 AM',
+                location: 'Conference Room A',
+                caseId: null
+            },
+            {
+                id: 2,
+                title: 'Preliminary Hearing - Garcia vs. State',
+                date: new Date().toISOString().split('T')[0],
+                time: '11:00 AM',
+                location: 'Courtroom 3B',
+                caseId: 'LEA-2023-0775'
+            },
+            {
+                id: 3,
+                title: 'Case Preparation',
+                date: new Date().toISOString().split('T')[0],
+                time: '2:00 PM',
+                location: 'Office',
+                caseId: null
+            },
+            {
+                id: 4,
+                title: 'Legal Research',
+                date: new Date().toISOString().split('T')[0],
+                time: '4:00 PM',
+                location: 'Law Library',
+                caseId: null
+            }
+        ];
+        
+        // Load data from localStorage if available
+        function loadDataFromStorage() {
+            try {
+                const storedCases = localStorage.getItem('legalPortalCases');
+                if (storedCases) {
+                    cases = JSON.parse(storedCases);
+                }
+                
+                const storedEvidence = localStorage.getItem('legalPortalEvidence');
+                if (storedEvidence) {
+                    evidenceFiles = JSON.parse(storedEvidence);
+                }
+                
+                const storedResources = localStorage.getItem('legalPortalResources');
+                if (storedResources) {
+                    researchResourcesData = JSON.parse(storedResources);
+                }
+                
+                const storedEvents = localStorage.getItem('legalPortalEvents');
+                if (storedEvents) {
+                    calendarEvents = JSON.parse(storedEvents);
+                }
+            } catch (error) {
+                console.error('Error loading data from localStorage:', error);
+            }
+        }
+        
+        // Save data to localStorage
+        function saveDataToStorage() {
+            try {
+                localStorage.setItem('legalPortalCases', JSON.stringify(cases));
+                localStorage.setItem('legalPortalEvidence', JSON.stringify(evidenceFiles));
+                localStorage.setItem('legalPortalResources', JSON.stringify(researchResourcesData));
+                localStorage.setItem('legalPortalEvents', JSON.stringify(calendarEvents));
+            } catch (error) {
+                console.error('Error saving data to localStorage:', error);
+            }
+        }
+        
+        // Create digital rain effect
+        function createDigitalRain() {
+            const columns = Math.floor(window.innerWidth / 20);
+            
+            for (let i = 0; i < columns; i++) {
+                const column = document.createElement('div');
+                column.className = 'rain-column';
+                column.style.left = `${i * 20}px`;
+                column.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                column.style.animationDelay = `${Math.random() * 5}s`;
+                
+                const characters = '01';
+                let text = '';
+                for (let j = 0; j < 20; j++) {
+                    text += characters.charAt(Math.floor(Math.random() * characters.length)) + '<br>';
+                }
+                column.innerHTML = text;
+                
+                digitalRain.appendChild(column);
+            }
+        }
+        
+        // Initialize digital rain
+        createDigitalRain();
+        
+        // Portal navigation
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const page = this.dataset.page;
+                
+                // Update active sidebar item
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Hide all portal pages
+                portalPages.forEach(p => p.classList.add('hidden'));
+                
+                // Show selected page
+                const targetPage = document.getElementById(`lea-${page}`);
+                if (targetPage) {
+                    targetPage.classList.remove('hidden');
+                    
+                    // Initialize page-specific content
+                    if (page === 'dashboard') {
+                        setTimeoutInitLEADashboardCharts();
+                    } else if (page === 'reports') {
+                        setTimeoutInitLEAReportsCharts();
+                    } else if (page === 'calendar') {
+                        renderCalendar();
+                        renderTodaySchedule();
+                    } else if (page === 'evidence') {
+                        renderEvidenceGrid();
+                    } else if (page === 'research') {
+                        renderResearchResources();
+                    }
+                } else {
+                    console.error(`Page not found: lea-${page}`);
+                    showNotification('Page not found', 'error');
+                }
+            });
+            
+            // Add keyboard support
+            item.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+        
+        // Case management
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.view-case')) {
+                const caseId = parseInt(e.target.closest('.view-case').dataset.id);
+                const caseData = cases.find(c => c.id === caseId);
+                
+                if (caseData) {
+                    // Populate case modal with data
+                    document.getElementById('caseId').value = caseData.caseId;
+                    document.getElementById('caseTitle').value = caseData.title;
+                    document.getElementById('caseType').value = caseData.type;
+                    document.getElementById('casePriority').value = caseData.priority;
+                    document.getElementById('assignedOfficer').value = caseData.assignedOfficer;
+                    document.getElementById('caseStatus').value = caseData.status;
+                    document.getElementById('caseDescription').value = caseData.description;
+                    
+                    // Populate evidence files
+                    const evidenceFilesContainer = document.getElementById('evidenceFiles');
+                    evidenceFilesContainer.innerHTML = '';
+                    
+                    caseData.evidenceFiles.forEach(file => {
+                        const fileElement = document.createElement('div');
+                        fileElement.className = 'flex items-center justify-between p-2 bg-gray-800 rounded';
+                        
+                        const statusBadge = file.status === 'Verified' 
+                            ? '<span class="badge badge-success">Verified</span>'
+                            : '<span class="badge badge-warning">Pending Review</span>';
+                        
+                        fileElement.innerHTML = `
+                            <div>
+                                <p class="text-sm font-medium">${file.name}</p>
+                                <p class="text-xs text-gray-400">${file.type} • ${file.size}</p>
+                            </div>
+                            <div class="flex items-center">
+                                ${statusBadge}
+                                <button class="text-pink-400 hover:text-pink-300 ml-2" aria-label="Download file">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        `;
+                        
+                        evidenceFilesContainer.appendChild(fileElement);
+                    });
+                    
+                    caseModal.classList.add('active');
+                }
+            }
+        });
+        
+        // Close case modal
+        closeCaseModal.addEventListener('click', function() {
+            caseModal.classList.remove('active');
+        });
+        
+        cancelCaseModal.addEventListener('click', function() {
+            caseModal.classList.remove('active');
+        });
+        
+        // Close modal when clicking outside
+        caseModal.addEventListener('click', function(e) {
+            if (e.target === caseModal) {
+                caseModal.classList.remove('active');
+            }
+        });
+        
+        // Update case status
+        updateCase.addEventListener('click', function() {
+            const caseId = document.getElementById('caseId').value;
+            const newStatus = document.getElementById('caseStatus').value;
+            
+            const caseIndex = cases.findIndex(c => c.caseId === caseId);
+            if (caseIndex !== -1) {
+                cases[caseIndex].status = newStatus;
+                cases[caseIndex].lastUpdated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                
+                // Save to localStorage
+                saveDataToStorage();
+                
+                renderCaseTable();
+                caseModal.classList.remove('active');
+                showNotification('Case status updated successfully', 'success');
+            }
+        });
+        
+        // New case functionality
+        newCaseBtn.addEventListener('click', function() {
+            newCaseModal.classList.add('active');
+        });
+        
+        closeNewCaseModal.addEventListener('click', function() {
+            newCaseModal.classList.remove('active');
+        });
+        
+        cancelNewCaseModal.addEventListener('click', function() {
+            newCaseModal.classList.remove('active');
+        });
+        
+        createNewCase.addEventListener('click', function() {
+            const title = document.getElementById('newCaseTitle').value;
+            const client = document.getElementById('newCaseClient').value;
+            const type = document.getElementById('newCaseType').value;
+            const priority = document.getElementById('newCasePriority').value;
+            const description = document.getElementById('newCaseDescription').value;
+            
+            if (!title || !client || !type || !priority || !description) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Generate new case ID
+            const lastCaseId = cases.length > 0 ? Math.max(...cases.map(c => parseInt(c.caseId.split('-')[2]))) : 0;
+            const newCaseId = `LEA-2023-${String(lastCaseId + 1).padStart(4, '0')}`;
+            
+            // Create new case object
+            const newCase = {
+                id: cases.length + 1,
+                caseId: newCaseId,
+                title: title,
+                client: client,
+                type: type,
+                priority: priority,
+                status: 'Open',
+                assignedOfficer: 'Legal Officer',
+                lastUpdated: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                description: description,
+                evidenceFiles: []
+            };
+            
+            // Add to cases array
+            cases.push(newCase);
+            
+            // Save to localStorage
+            saveDataToStorage();
+            
+            // Re-render case table
+            renderCaseTable();
+            
+            // Close modal and reset form
+            newCaseModal.classList.remove('active');
+            newCaseForm.reset();
+            
+            showNotification('Case created successfully', 'success');
+        });
+        
+        // Upload evidence functionality
+        uploadEvidenceBtn.addEventListener('click', function() {
+            uploadEvidenceModal.classList.add('active');
+        });
+        
+        closeUploadEvidenceModal.addEventListener('click', function() {
+            uploadEvidenceModal.classList.remove('active');
+        });
+        
+        cancelUploadEvidenceModal.addEventListener('click', function() {
+            uploadEvidenceModal.classList.remove('active');
+        });
+        
+        // Upload area click to open file dialog
+        uploadArea.addEventListener('click', function() {
+            evidenceFile.click();
+        });
+        
+        // Handle file selection
+        evidenceFile.addEventListener('change', function() {
+            const files = evidenceFile.files;
+            if (files.length > 0) {
+                displaySelectedFiles(files);
+            }
+        });
+        
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                evidenceFile.files = files;
+                displaySelectedFiles(files);
+            }
+        });
+        
+        // Display selected files
+        function displaySelectedFiles(files) {
+            selectedFiles.innerHTML = '';
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileElement = document.createElement('div');
+                fileElement.className = 'flex items-center justify-between p-2 bg-gray-800 rounded mb-2';
+                
+                const fileSize = formatFileSize(file.size);
+                const fileType = getFileType(file.name);
+                
+                fileElement.innerHTML = `
+                    <div>
+                        <p class="text-sm font-medium">${file.name}</p>
+                        <p class="text-xs text-gray-400">${fileType} • ${fileSize}</p>
+                    </div>
+                    <button class="text-red-400 hover:text-red-300 remove-file" data-index="${i}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                selectedFiles.appendChild(fileElement);
+            }
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.remove-file').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    const dt = new DataTransfer();
+                    
+                    for (let i = 0; i < evidenceFile.files.length; i++) {
+                        if (i !== index) {
+                            dt.items.add(evidenceFile.files[i]);
+                        }
+                    }
+                    
+                    evidenceFile.files = dt.files;
+                    displaySelectedFiles(evidenceFile.files);
+                });
+            });
+        }
+        
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Get file type from name
+        function getFileType(filename) {
+            const extension = filename.split('.').pop().toLowerCase();
+            
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(extension)) {
+                return 'Image';
+            } else if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv'].includes(extension)) {
+                return 'Video';
+            } else if (['mp3', 'wav', 'ogg', 'flac', 'aac'].includes(extension)) {
+                return 'Audio';
+            } else if (['pdf'].includes(extension)) {
+                return 'PDF';
+            } else if (['doc', 'docx'].includes(extension)) {
+                return 'Document';
+            } else if (['xls', 'xlsx', 'csv'].includes(extension)) {
+                return 'Spreadsheet';
+            } else if (['ppt', 'pptx'].includes(extension)) {
+                return 'Presentation';
+            } else if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension)) {
+                return 'Archive';
+            } else {
+                return 'File';
+            }
+        }
+        
+        // Upload evidence
+        uploadEvidence.addEventListener('click', function() {
+            const caseId = document.getElementById('evidenceCase').value;
+            const description = document.getElementById('evidenceDescription').value;
+            const files = evidenceFile.files;
+            
+            if (!caseId) {
+                showNotification('Please select a case', 'error');
+                return;
+            }
+            
+            if (files.length === 0) {
+                showNotification('Please select at least one file', 'error');
+                return;
+            }
+            
+            // Show progress bar
+            uploadProgress.style.display = 'block';
+            uploadProgressBar.style.width = '0%';
+            
+            // Simulate upload progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                uploadProgressBar.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Process uploaded files
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const fileSize = formatFileSize(file.size);
+                        const fileType = getFileType(file.name);
+                        
+                        // Create new evidence file object
+                        const newEvidenceFile = {
+                            id: evidenceFiles.length + 1,
+                            name: file.name,
+                            size: fileSize,
+                            type: fileType,
+                            caseId: caseId,
+                            status: 'Pending Review',
+                            uploaded: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                            description: description
+                        };
+                        
+                        // Add to evidence files array
+                        evidenceFiles.push(newEvidenceFile);
+                        
+                        // Add to case's evidence files
+                        const caseIndex = cases.findIndex(c => c.caseId === caseId);
+                        if (caseIndex !== -1) {
+                            cases[caseIndex].evidenceFiles.push({
+                                name: file.name,
+                                size: fileSize,
+                                type: fileType,
+                                status: 'Pending Review'
+                            });
+                        }
+                    }
+                    
+                    // Save to localStorage
+                    saveDataToStorage();
+                    
+                    // Re-render evidence grid
+                    renderEvidenceGrid();
+                    
+                    // Close modal and reset form
+                    uploadEvidenceModal.classList.remove('active');
+                    uploadEvidenceForm.reset();
+                    selectedFiles.innerHTML = '';
+                    uploadProgress.style.display = 'none';
+                    
+                    showNotification('Evidence uploaded successfully', 'success');
+                }
+            }, 200);
+        });
+        
+        // Search and filter cases
+        caseSearch.addEventListener('input', renderCaseTable);
+        caseTypeFilter.addEventListener('change', renderCaseTable);
+        caseStatusFilter.addEventListener('change', renderCaseTable);
+        
+        // Render case table
+        function renderCaseTable() {
+            const searchTerm = caseSearch.value.toLowerCase();
+            const typeFilterValue = caseTypeFilter.value;
+            const statusFilterValue = caseStatusFilter.value;
+            
+            const filteredCases = cases.filter(caseData => {
+                const matchesSearch = caseData.caseId.toLowerCase().includes(searchTerm) || 
+                                    caseData.title.toLowerCase().includes(searchTerm) ||
+                                    caseData.client.toLowerCase().includes(searchTerm);
+                const matchesType = typeFilterValue === 'All Types' || caseData.type === typeFilterValue;
+                const matchesStatus = statusFilterValue === 'All Statuses' || caseData.status === statusFilterValue;
+                
+                return matchesSearch && matchesType && matchesStatus;
+            });
+            
+            caseTableBody.innerHTML = '';
+            
+            filteredCases.forEach(caseData => {
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                
+                const priorityBadge = getPriorityBadge(caseData.priority);
+                const statusBadge = getStatusBadge(caseData.status);
+                const actionButtons = getCaseActionButtons(caseData);
+                
+                row.innerHTML = `
+                    <td class="px-4 py-3">${caseData.caseId}</td>
+                    <td class="px-4 py-3">${caseData.title}</td>
+                    <td class="px-4 py-3">${caseData.client}</td>
+                    <td class="px-4 py-3">${caseData.type}</td>
+                    <td class="px-4 py-3">${priorityBadge}</td>
+                    <td class="px-4 py-3">${statusBadge}</td>
+                    <td class="px-4 py-3">${caseData.lastUpdated}</td>
+                    <td class="px-4 py-3">${actionButtons}</td>
+                `;
+                
+                caseTableBody.appendChild(row);
+            });
+        }
+        
+        // Render evidence grid
+        function renderEvidenceGrid() {
+            const evidenceGrid = document.getElementById('evidenceGrid');
+            if (!evidenceGrid) return;
+            
+            const searchTerm = evidenceSearch ? evidenceSearch.value.toLowerCase() : '';
+            const typeFilterValue = evidenceTypeFilter ? evidenceTypeFilter.value : 'All Types';
+            const caseFilterValue = evidenceCaseFilter ? evidenceCaseFilter.value : 'All Cases';
+            
+            const filteredEvidence = evidenceFiles.filter(file => {
+                const matchesSearch = file.name.toLowerCase().includes(searchTerm);
+                const matchesType = typeFilterValue === 'All Types' || file.type === typeFilterValue;
+                const matchesCase = caseFilterValue === 'All Cases' || file.caseId === caseFilterValue;
+                
+                return matchesSearch && matchesType && matchesCase;
+            });
+            
+            evidenceGrid.innerHTML = '';
+            
+            filteredEvidence.forEach(file => {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'evidence-file';
+                
+                const iconClass = getFileIcon(file.type);
+                const statusBadge = file.status === 'Verified' 
+                    ? '<span class="badge badge-success">Verified</span>'
+                    : '<span class="badge badge-warning">Pending Review</span>';
+                
+                fileElement.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex items-center">
+                            <i class="${iconClass} text-xl mr-2"></i>
+                            <div>
+                                <p class="font-medium">${file.name}</p>
+                                <p class="text-xs text-gray-400">${file.size}</p>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="text-gray-400 hover:text-white" aria-label="More options">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-400 mb-2">
+                        <p>Case: ${file.caseId}</p>
+                        <p>Uploaded: ${file.uploaded}</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        ${statusBadge}
+                        <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                `;
+                
+                evidenceGrid.appendChild(fileElement);
+            });
+        }
+        
+        // Get file icon based on type
+        function getFileIcon(type) {
+            switch (type) {
+                case 'PDF':
+                    return 'fas fa-file-pdf text-red-400';
+                case 'Image':
+                    return 'fas fa-file-image text-green-400';
+                case 'Video':
+                    return 'fas fa-file-video text-blue-400';
+                case 'Audio':
+                    return 'fas fa-file-audio text-yellow-400';
+                case 'Document':
+                    return 'fas fa-file-word text-blue-400';
+                case 'Spreadsheet':
+                    return 'fas fa-file-excel text-green-400';
+                case 'Presentation':
+                    return 'fas fa-file-powerpoint text-orange-400';
+                case 'Archive':
+                    return 'fas fa-file-archive text-purple-400';
+                default:
+                    return 'fas fa-file text-gray-400';
+            }
+        }
+        
+        // Render research resources
+        function renderResearchResources() {
+            if (!researchResources) return;
+            
+            const searchTerm = researchSearch ? researchSearch.value.toLowerCase() : '';
+            const categoryFilterValue = researchCategoryFilter ? researchCategoryFilter.value : 'All Categories';
+            
+            const filteredResources = researchResourcesData.filter(resource => {
+                const matchesSearch = resource.title.toLowerCase().includes(searchTerm) || 
+                                    resource.description.toLowerCase().includes(searchTerm);
+                const matchesCategory = categoryFilterValue === 'All Categories' || resource.category === categoryFilterValue;
+                
+                return matchesSearch && matchesCategory;
+            });
+            
+            researchResources.innerHTML = '';
+            
+            filteredResources.forEach(resource => {
+                const resourceElement = document.createElement('div');
+                resourceElement.className = 'border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors cursor-pointer';
+                
+                resourceElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-medium text-lg">${resource.title}</h4>
+                            <p class="text-sm text-gray-400 mt-1">${resource.description}</p>
+                            <div class="flex items-center mt-2">
+                                <span class="badge badge-purple mr-2">${resource.category}</span>
+                                <span class="text-xs text-gray-500">Added: ${resource.added}</span>
+                            </div>
+                        </div>
+                        <button class="text-pink-400 hover:text-pink-300" aria-label="Bookmark">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                    </div>
+                `;
+                
+                researchResources.appendChild(resourceElement);
+            });
+        }
+        
+        // Render calendar
+        function renderCalendar() {
+            if (!calendarDays) return;
+            
+            const currentDate = new Date();
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Clear calendar
+            calendarDays.innerHTML = '';
+            
+            // Add empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'text-center py-2 text-gray-500';
+                calendarDays.appendChild(emptyDay);
+            }
+            
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'text-center py-2';
+                
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // Check if there are events for this day
+                const dayEvents = calendarEvents.filter(event => event.date === dateStr);
+                
+                if (dayEvents.length > 0) {
+                    dayElement.classList.add('bg-pink-900', 'bg-opacity-30', 'rounded-lg', 'relative');
+                    
+                    const eventIndicator = document.createElement('div');
+                    eventIndicator.className = 'absolute bottom-0 left-0 right-0 h-1 bg-pink-500 rounded-b-lg';
+                    dayElement.appendChild(eventIndicator);
+                }
+                
+                dayElement.textContent = day;
+                calendarDays.appendChild(dayElement);
+            }
+        }
+        
+        // Render today's schedule
+        function renderTodaySchedule() {
+            if (!todaySchedule) return;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const todayEvents = calendarEvents.filter(event => event.date === today);
+            
+            // Sort events by time
+            todayEvents.sort((a, b) => {
+                const timeA = a.time;
+                const timeB = b.time;
+                
+                if (timeA.includes('AM') && timeB.includes('PM')) return -1;
+                if (timeA.includes('PM') && timeB.includes('AM')) return 1;
+                
+                const hourA = parseInt(timeA.split(':')[0]);
+                const hourB = parseInt(timeB.split(':')[0]);
+                
+                return hourA - hourB;
+            });
+            
+            todaySchedule.innerHTML = '';
+            
+            todayEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'flex';
+                
+                const isCourtEvent = event.title.includes('Hearing') || event.title.includes('Court');
+                const eventClass = isCourtEvent 
+                    ? 'bg-pink-900 bg-opacity-30 rounded-lg p-3 border border-pink-700'
+                    : 'bg-gray-800 rounded-lg p-3';
+                
+                eventElement.innerHTML = `
+                    <div class="w-16 text-sm text-gray-400">${event.time}</div>
+                    <div class="flex-1 ml-4 pb-4 border-l border-gray-700 pl-4">
+                        <div class="${eventClass}">
+                            <p class="font-medium">${event.title}</p>
+                            <p class="text-sm text-gray-400">${event.location}</p>
+                        </div>
+                    </div>
+                `;
+                
+                todaySchedule.appendChild(eventElement);
+            });
+        }
+        
+        // Get priority badge HTML
+        function getPriorityBadge(priority) {
+            switch (priority) {
+                case 'High':
+                    return '<span class="badge badge-danger">High</span>';
+                case 'Medium':
+                    return '<span class="badge badge-warning">Medium</span>';
+                case 'Low':
+                    return '<span class="badge badge-success">Low</span>';
+                default:
+                    return '<span class="badge badge-warning">Unknown</span>';
+            }
+        }
+        
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'Open':
+                    return '<span class="badge badge-success">Open</span>';
+                case 'In Progress':
+                    return '<span class="badge badge-warning">In Progress</span>';
+                case 'Pending Review':
+                    return '<span class="badge badge-purple">Pending Review</span>';
+                case 'Closed':
+                    return '<span class="badge badge-purple">Closed</span>';
+                default:
+                    return '<span class="badge badge-warning">Unknown</span>';
+            }
+        }
+        
+        // Get case action buttons HTML
+        function getCaseActionButtons(caseData) {
+            if (caseData.status === 'Closed') {
+                return `
+                    <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="${caseData.id}" aria-label="View case">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="text-gray-400 hover:text-gray-300" disabled>
+                        <i class="fas fa-edit"></i>
+                    </button>
+                `;
+            } else {
+                return `
+                    <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="${caseData.id}" aria-label="View case">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="text-blue-400 hover:text-blue-300 mr-3 edit-case" data-id="${caseData.id}" aria-label="Edit case">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                `;
+            }
+        }
+        
+        // Notification function
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Initialize LEA Dashboard Charts
+        function setTimeoutInitLEADashboardCharts() {
+            setTimeout(initLEADashboardCharts, 100);
+        }
+        
+        function initLEADashboardCharts() {
+            // LEA Case Distribution Chart
+            const ctx = document.getElementById('caseDistributionChart');
+            if (ctx && !ctx.chart) {
+                try {
+                    ctx.chart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Criminal', 'Civil', 'Family', 'Corporate'],
+                            datasets: [{
+                                data: [55, 25, 15, 5],
+                                backgroundColor: [
+                                    'rgba(236, 72, 153, 0.8)',
+                                    'rgba(139, 92, 246, 0.8)',
+                                    'rgba(16, 185, 129, 0.8)',
+                                    'rgba(245, 158, 11, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(236, 72, 153, 1)',
+                                    'rgba(139, 92, 246, 1)',
+                                    'rgba(16, 185, 129, 1)',
+                                    'rgba(245, 158, 11, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: 'rgba(255, 255, 255, 0.7)',
+                                        padding: 20
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing case distribution chart:', error);
+                }
+            }
+        }
+        
+        // Initialize LEA Reports Charts
+        function setTimeoutInitLEAReportsCharts() {
+            setTimeout(initLEAReportsCharts, 100);
+        }
+        
+        function initLEAReportsCharts() {
+            // LEA Case Type Chart
+            const ctx = document.getElementById('caseTypeChart');
+            if (ctx && !ctx.chart) {
+                try {
+                    ctx.chart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Criminal', 'Civil', 'Family', 'Corporate'],
+                            datasets: [{
+                                data: [55, 25, 15, 5],
+                                backgroundColor: [
+                                    'rgba(236, 72, 153, 0.8)',
+                                    'rgba(139, 92, 246, 0.8)',
+                                    'rgba(16, 185, 129, 0.8)',
+                                    'rgba(245, 158, 11, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(236, 72, 153, 1)',
+                                    'rgba(139, 92, 246, 1)',
+                                    'rgba(16, 185, 129, 1)',
+                                    'rgba(245, 158, 11, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: 'rgba(255, 255, 255, 0.7)',
+                                        padding: 20
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing case type chart:', error);
+                }
+            }
+        }
+        
+        // Form submissions
+        if (generateReportForm) {
+            generateReportForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const reportType = document.getElementById('reportType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const reportFormat = document.getElementById('reportFormat').value;
+                
+                // Simulate report generation
+                showNotification(`Generating ${reportType} report in ${reportFormat} format...`, 'success');
+                
+                setTimeout(() => {
+                    showNotification('Report generated successfully!', 'success');
+                }, 2000);
+            });
+        }
+        
+        if (addEventForm) {
+            addEventForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const eventTitle = document.getElementById('eventTitle').value;
+                const eventDate = document.getElementById('eventDate').value;
+                const eventTime = document.getElementById('eventTime').value;
+                const eventLocation = document.getElementById('eventLocation').value;
+                const eventCase = document.getElementById('eventCase').value;
+                
+                // Create new event object
+                const newEvent = {
+                    id: calendarEvents.length + 1,
+                    title: eventTitle,
+                    date: eventDate,
+                    time: eventTime,
+                    location: eventLocation,
+                    caseId: eventCase === 'None' ? null : eventCase
+                };
+                
+                // Add to events array
+                calendarEvents.push(newEvent);
+                
+                // Save to localStorage
+                saveDataToStorage();
+                
+                // Re-render calendar and schedule
+                renderCalendar();
+                renderTodaySchedule();
+                
+                // Reset form
+                addEventForm.reset();
+                
+                showNotification(`Event "${eventTitle}" added successfully!`, 'success');
+            });
+        }
+        
+        if (profileSettingsForm) {
+            profileSettingsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('email').value;
+                const department = document.getElementById('department').value;
+                const specialization = document.getElementById('specialization').value;
+                const bio = document.getElementById('bio').value;
+                
+                // Simulate saving profile
+                showNotification('Profile settings saved successfully!', 'success');
+            });
+        }
+        
+        if (passwordChangeForm) {
+            passwordChangeForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (newPassword !== confirmPassword) {
+                    showNotification('New passwords do not match!', 'error');
+                    return;
+                }
+                
+                if (newPassword.length < 8) {
+                    showNotification('Password must be at least 8 characters long!', 'error');
+                    return;
+                }
+                
+                // Simulate password change
+                showNotification('Password changed successfully!', 'success');
+                
+                // Reset form
+                passwordChangeForm.reset();
+            });
+        }
+        
+        // Button event listeners
+        if (loadMoreResources) {
+            loadMoreResources.addEventListener('click', function() {
+                // Simulate loading more resources
+                const newResources = [
+                    {
+                        id: researchResourcesData.length + 1,
+                        title: 'New Legal Precedent',
+                        description: 'Recent court ruling on digital evidence',
+                        category: 'Legal Precedent',
+                        added: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                    },
+                    {
+                        id: researchResourcesData.length + 2,
+                        title: 'Updated Statute',
+                        description: 'Changes to evidence collection procedures',
+                        category: 'Statute',
+                        added: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                    }
+                ];
+                
+                researchResourcesData.push(...newResources);
+                saveDataToStorage();
+                renderResearchResources();
+                
+                showNotification('More resources loaded successfully!', 'success');
+            });
+        }
+        
+        if (createNewFolder) {
+            createNewFolder.addEventListener('click', function() {
+                const folderName = prompt('Enter folder name:');
+                if (folderName) {
+                    showNotification(`Folder "${folderName}" created successfully!`, 'success');
+                }
+            });
+        }
+        
+        if (generateNewCodes) {
+            generateNewCodes.addEventListener('click', function() {
+                showNotification('New recovery codes generated successfully!', 'success');
+            });
+        }
+        
+        // Notification bell
+        if (notificationBell) {
+            notificationBell.addEventListener('click', function() {
+                showNotification('You have 3 new notifications', 'success');
+            });
+        }
+        
+        // Evidence search and filter
+        if (evidenceSearch) {
+            evidenceSearch.addEventListener('input', renderEvidenceGrid);
+        }
+        
+        if (evidenceTypeFilter) {
+            evidenceTypeFilter.addEventListener('change', renderEvidenceGrid);
+        }
+        
+        if (evidenceCaseFilter) {
+            evidenceCaseFilter.addEventListener('change', renderEvidenceGrid);
+        }
+        
+        // Research search and filter
+        if (researchSearch) {
+            researchSearch.addEventListener('input', renderResearchResources);
+        }
+        
+        if (researchCategoryFilter) {
+            researchCategoryFilter.addEventListener('change', renderResearchResources);
+        }
+        
+        // Initialize dashboard charts on page load
+        window.addEventListener('load', function() {
+            // Load data from localStorage
+            loadDataFromStorage();
+            
+            // Initialize charts
+            initLEADashboardCharts();
+            
+            // Render initial data
+            renderCaseTable();
+            renderEvidenceGrid();
+            renderResearchResources();
+            renderCalendar();
+            renderTodaySchedule();
+        });
+    </script>
+</body>
+</html>

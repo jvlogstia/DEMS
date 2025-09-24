@@ -1,0 +1,2735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DA/CA Portal - Rexus Group</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0f172a;
+            --secondary: #1e293b;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+        }
+        
+        .bg-gradient-security {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+        }
+        
+        .bg-gradient-accent {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(90deg, #8b5cf6, #a78bfa, #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .security-border {
+            position: relative;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .security-border::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.4), transparent);
+            animation: scan 3s infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        }
+        
+        .glow {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+        }
+        
+        .form-input {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+            color: #e2e8f0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+        }
+        
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .security-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(139, 92, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning);
+        }
+        
+        /* Portal Styles */
+        .portal-container {
+            min-height: 100vh;
+            background-color: var(--primary);
+        }
+        
+        .portal-header {
+            background-color: var(--secondary);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        .sidebar {
+            background-color: var(--secondary);
+            border-right: 1px solid rgba(139, 92, 246, 0.3);
+            min-height: calc(100vh - 64px);
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .sidebar-item.active {
+            background-color: rgba(139, 92, 246, 0.2);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .sidebar-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+        
+        .sidebar-item:hover::after {
+            transform: translateX(100%);
+        }
+        
+        .portal-content {
+            padding: 2rem;
+            min-height: calc(100vh - 64px);
+        }
+        
+        .stat-card {
+            background-color: var(--secondary);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.2), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.2);
+        }
+        
+        .progress-bar {
+            background-color: rgba(139, 92, 246, 0.2);
+            border-radius: 9999px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
+        }
+        
+        .table-container {
+            background-color: var(--secondary);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background-color: rgba(139, 92, 246, 0.1);
+            padding: 1rem;
+            font-weight: 600;
+        }
+        
+        .table-row {
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .table-row:hover {
+            background-color: rgba(139, 92, 246, 0.05);
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .badge-purple {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+        }
+        
+        .chart-container {
+            background-color: var(--secondary);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            height: 300px;
+        }
+        
+        /* Holographic effect */
+        .holographic {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .holographic::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            transform: rotate(45deg);
+            animation: holographic-shine 3s infinite;
+        }
+        
+        @keyframes holographic-shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        /* Digital Rain Effect */
+        .digital-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.05;
+            overflow: hidden;
+        }
+        
+        .rain-column {
+            position: absolute;
+            top: -100%;
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            color: #8b5cf6;
+            animation: rain linear infinite;
+        }
+        
+        @keyframes rain {
+            to { transform: translateY(200vh); }
+        }
+        
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: var(--secondary);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.5rem;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            width: 600px;
+        }
+        
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 1rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(139, 92, 246, 0.3);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        /* Evidence File */
+        .evidence-file {
+            background-color: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .evidence-file:hover {
+            background-color: rgba(30, 41, 59, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+        }
+        
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4b5563;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #8b5cf6;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* File Upload Modal */
+        .file-upload-area {
+            border: 2px dashed rgba(139, 92, 246, 0.5);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-upload-area:hover {
+            border-color: rgba(139, 92, 246, 0.8);
+            background-color: rgba(139, 92, 246, 0.05);
+        }
+        
+        .file-upload-area.drag-over {
+            border-color: var(--accent);
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        
+        /* Notification Center */
+        .notification-center {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: 350px;
+            background-color: var(--secondary);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 100;
+            transform: scale(0.95);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .notification-center.active {
+            transform: scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .notification-list {
+            padding: 1rem;
+        }
+        
+        .notification-item {
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+        
+        .notification-item.unread {
+            background-color: rgba(139, 92, 246, 0.05);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .notification-item-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .notification-item-time {
+            font-size: 0.75rem;
+            color: rgba(226, 232, 240, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gradient-security">
+    <div class="security-pattern"></div>
+    
+    <!-- Digital Rain Effect -->
+    <div class="digital-rain" id="digitalRain"></div>
+    
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
+    
+    <!-- Notification Center -->
+    <div class="notification-center" id="notificationCenter">
+        <div class="notification-header">
+            <h3 class="font-semibold">Notifications</h3>
+            <button id="closeNotificationCenter" class="text-gray-400 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <div class="notification-item unread">
+                <div class="notification-item-title">New evidence uploaded to case DA-2023-0456</div>
+                <div class="notification-item-time">2 hours ago</div>
+            </div>
+            <div class="notification-item unread">
+                <div class="notification-item-title">Court date scheduled for State vs. Williams</div>
+                <div class="notification-item-time">5 hours ago</div>
+            </div>
+            <div class="notification-item">
+                <div class="notification-item-title">Case DA-2023-0421 has been closed</div>
+                <div class="notification-item-time">Yesterday</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Case Modal -->
+    <div class="modal" id="caseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold" id="caseModalTitle">Case Details</h3>
+                <button id="closeCaseModal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Case ID</label>
+                    <input type="text" id="caseId" class="form-input w-full" readonly>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Case Title</label>
+                    <input type="text" id="caseTitle" class="form-input w-full" readonly>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-300 mb-2">Case Type</label>
+                        <input type="text" id="caseType" class="form-input w-full" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-2">Priority</label>
+                        <input type="text" id="casePriority" class="form-input w-full" readonly>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Assigned Attorney</label>
+                    <input type="text" id="assignedAttorney" class="form-input w-full" readonly>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Status</label>
+                    <select id="caseStatus" class="form-input w-full">
+                        <option value="Open">Open</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Pending Review">Pending Review</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Description</label>
+                    <textarea id="caseDescription" class="form-input w-full" rows="4" readonly></textarea>
+                </div>
+                
+                <div class="mb-4">
+                    <h4 class="text-gray-300 mb-2">Evidence Files</h4>
+                    <div id="evidenceFiles" class="space-y-2 max-h-40 overflow-y-auto">
+                        <!-- Evidence files will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelCaseModal" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg mr-2">
+                    Close
+                </button>
+                <button id="updateCase" class="btn-primary px-4 py-2 rounded-lg">
+                    Update Status
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- New Case Modal -->
+    <div class="modal" id="newCaseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold">Create New Case</h3>
+                <button id="closeNewCaseModal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="newCaseForm">
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Case Title *</label>
+                        <input type="text" id="newCaseTitle" class="form-input w-full" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-300 mb-2">Case Type *</label>
+                            <select id="newCaseType" class="form-input w-full" required>
+                                <option value="">Select case type</option>
+                                <option value="Felony">Felony</option>
+                                <option value="Misdemeanor">Misdemeanor</option>
+                                <option value="Juvenile">Juvenile</option>
+                                <option value="Appeal">Appeal</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 mb-2">Priority *</label>
+                            <select id="newCasePriority" class="form-input w-full" required>
+                                <option value="">Select priority</option>
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Assigned Attorney</label>
+                        <input type="text" id="newCaseAttorney" class="form-input w-full" value="District Attorney">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Status</label>
+                        <select id="newCaseStatus" class="form-input w-full">
+                            <option value="Open">Open</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Pending Review">Pending Review</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-300 mb-2">Description</label>
+                        <textarea id="newCaseDescription" class="form-input w-full" rows="4" placeholder="Brief description of the case"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelNewCaseModal" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg mr-2">
+                    Cancel
+                </button>
+                <button id="createCase" class="btn-primary px-4 py-2 rounded-lg">
+                    Create Case
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- File Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold">Upload Evidence</h3>
+                <button id="closeUploadModal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Select Case</label>
+                    <select id="uploadCaseSelect" class="form-input w-full">
+                        <option value="">Select a case</option>
+                        <option value="DA-2023-0456">DA-2023-0456: State vs. Johnson</option>
+                        <option value="DA-2023-0442">DA-2023-0442: State vs. Davis</option>
+                        <option value="DA-2023-0438">DA-2023-0438: State vs. Williams</option>
+                        <option value="DA-2023-0421">DA-2023-0421: State vs. Smith</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Evidence Description</label>
+                    <input type="text" id="evidenceDescription" class="form-input w-full" placeholder="Brief description of the evidence">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-300 mb-2">Select Files</label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-purple-400 mb-3"></i>
+                        <p class="mb-2">Drag and drop files here or click to browse</p>
+                        <p class="text-sm text-gray-400">Supported formats: PDF, DOC, DOCX, JPG, PNG, MP4, MP3</p>
+                        <input type="file" id="fileInput" class="hidden" multiple>
+                    </div>
+                    <div id="selectedFiles" class="mt-3 space-y-2"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelUploadModal" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg mr-2">
+                    Cancel
+                </button>
+                <button id="confirmUpload" class="btn-primary px-4 py-2 rounded-lg">
+                    Upload Files
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- DA/CA Portal -->
+    <div id="daPortal" class="portal-container">
+        <header class="portal-header px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gradient-accent rounded-full flex items-center justify-center mr-3 holographic">
+                    <i class="fas fa-balance-scale text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold orbitron text-gradient">DA/CA Portal</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button id="notificationBell" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full pulse-animation"></span>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <img src="https://picsum.photos/seed/da_user/40/40.jpg" alt="User" class="w-8 h-8 rounded-full">
+                    <span class="text-sm">District Attorney</span>
+                </div>
+                <a href="{{ url_for('logout') }}" id="logoutDA" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </header>
+        
+        <div class="flex">
+            <aside class="sidebar w-64 p-4">
+                <nav class="space-y-2">
+                    <div class="sidebar-item active p-3 rounded-lg" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        Dashboard
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="cases">
+                        <i class="fas fa-briefcase mr-3"></i>
+                        My Cases
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="evidence">
+                        <i class="fas fa-folder-open mr-3"></i>
+                        Evidence Repository
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="calendar">
+                        <i class="fas fa-calendar-alt mr-3"></i>
+                        Court Calendar
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="reports">
+                        <i class="fas fa-file-alt mr-3"></i>
+                        Reports
+                    </div>
+                    <div class="sidebar-item p-3 rounded-lg" data-page="settings">
+                        <i class="fas fa-cog mr-3"></i>
+                        Settings
+                    </div>
+                </nav>
+            </aside>
+            
+            <main class="portal-content flex-1">
+                <!-- DA/CA Dashboard -->
+                <div id="da-dashboard" class="portal-page">
+                    <h2 class="text-2xl font-bold mb-6">DA/CA Dashboard</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Active Cases</h3>
+                                <i class="fas fa-briefcase text-purple-400"></i>
+                            </div>
+                            <p class="text-3xl font-bold">24</p>
+                            <p class="text-sm text-gray-400">+3 this month</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Upcoming Hearings</h3>
+                                <i class="fas fa-gavel text-purple-400"></i>
+                            </div>
+                            <p class="text-3xl font-bold">8</p>
+                            <p class="text-sm text-gray-400">Next 7 days</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Evidence Files</h3>
+                                <i class="fas fa-folder text-purple-400"></i>
+                            </div>
+                            <p class="text-3xl font-bold">342</p>
+                            <p class="text-sm text-gray-400">Across all cases</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-gray-400">Case Win Rate</h3>
+                                <i class="fas fa-chart-line text-purple-400"></i>
+                            </div>
+                            <p class="text-3xl font-bold">87%</p>
+                            <p class="text-sm text-gray-400">Last 12 months</p>
+                            <div class="mt-2">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 87%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Recent Case Activity</h3>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-plus-circle text-green-400 mt-1 mr-3"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">New Case Assigned</p>
+                                            <p class="text-sm text-gray-400">Case #DA-2023-0456: State vs. Johnson</p>
+                                            <p class="text-xs text-gray-500">2 hours ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-file-upload text-blue-400 mt-1 mr-3"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">Evidence Uploaded</p>
+                                            <p class="text-sm text-gray-400">5 new files added to Case #DA-2023-0442</p>
+                                            <p class="text-xs text-gray-500">5 hours ago</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-gavel text-yellow-400 mt-1 mr-3"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">Hearing Scheduled</p>
+                                            <p class="text-sm text-gray-400">Preliminary hearing for Case #DA-2023-0438 set for Oct 25</p>
+                                            <p class="text-xs text-gray-500">Yesterday</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-check-circle text-purple-400 mt-1 mr-3"></i>
+                                        <div class="flex-1">
+                                            <p class="font-medium">Case Closed</p>
+                                            <p class="text-sm text-gray-400">Case #DA-2023-0421: State vs. Smith - Guilty verdict</p>
+                                            <p class="text-xs text-gray-500">2 days ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">Case Statistics</h3>
+                            <div class="chart-container">
+                                <canvas id="caseStatsChartDA"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">Upcoming Court Dates</h3>
+                        <div class="bg-secondary border border-gray-700 rounded-lg p-4">
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-800">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left">Date</th>
+                                            <th class="px-4 py-3 text-left">Case ID</th>
+                                            <th class="px-4 py-3 text-left">Case Title</th>
+                                            <th class="px-4 py-3 text-left">Type</th>
+                                            <th class="px-4 py-3 text-left">Location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="table-row">
+                                            <td class="px-4 py-3">Oct 18, 2023</td>
+                                            <td class="px-4 py-3">DA-2023-0438</td>
+                                            <td class="px-4 py-3">State vs. Williams</td>
+                                            <td class="px-4 py-3">Preliminary Hearing</td>
+                                            <td class="px-4 py-3">Courtroom 3B</td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-4 py-3">Oct 20, 2023</td>
+                                            <td class="px-4 py-3">DA-2023-0442</td>
+                                            <td class="px-4 py-3">State vs. Davis</td>
+                                            <td class="px-4 py-3">Motion Hearing</td>
+                                            <td class="px-4 py-3">Courtroom 2A</td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-4 py-3">Oct 25, 2023</td>
+                                            <td class="px-4 py-3">DA-2023-0438</td>
+                                            <td class="px-4 py-3">State vs. Williams</td>
+                                            <td class="px-4 py-3">Preliminary Hearing</td>
+                                            <td class="px-4 py-3">Courtroom 5C</td>
+                                        </tr>
+                                        <tr class="table-row">
+                                            <td class="px-4 py-3">Oct 28, 2023</td>
+                                            <td class="px-4 py-3">DA-2023-0451</td>
+                                            <td class="px-4 py-3">State vs. Martinez</td>
+                                            <td class="px-4 py-3">Arraignment</td>
+                                            <td class="px-4 py-3">Courtroom 1A</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- My Cases -->
+                <div id="da-cases" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">My Cases</h2>
+                    
+                    <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <input type="text" id="caseSearch" class="form-input w-64" placeholder="Search cases...">
+                                <select id="caseTypeFilter" class="form-input">
+                                    <option>All Types</option>
+                                    <option>Felony</option>
+                                    <option>Misdemeanor</option>
+                                    <option>Juvenile</option>
+                                    <option>Appeal</option>
+                                </select>
+                                <select id="caseStatusFilter" class="form-input">
+                                    <option>All Statuses</option>
+                                    <option>Open</option>
+                                    <option>In Progress</option>
+                                    <option>Pending Review</option>
+                                    <option>Closed</option>
+                                </select>
+                            </div>
+                            <button id="newCaseBtn" class="btn-primary px-4 py-2 rounded-lg">
+                                <i class="fas fa-plus mr-2"></i>New Case
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">Case ID</th>
+                                        <th class="px-4 py-3 text-left">Title</th>
+                                        <th class="px-4 py-3 text-left">Type</th>
+                                        <th class="px-4 py-3 text-left">Priority</th>
+                                        <th class="px-4 py-3 text-left">Status</th>
+                                        <th class="px-4 py-3 text-left">Last Updated</th>
+                                        <th class="px-4 py-3 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="caseTableBody">
+                                    <!-- Case rows will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Evidence Repository -->
+                <div id="da-evidence" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Evidence Repository</h2>
+                    
+                    <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <input type="text" id="evidenceSearch" class="form-input w-64" placeholder="Search evidence...">
+                                <select id="evidenceTypeFilter" class="form-input">
+                                    <option>All Types</option>
+                                    <option>Documents</option>
+                                    <option>Images</option>
+                                    <option>Videos</option>
+                                    <option>Audio</option>
+                                    <option>Other</option>
+                                </select>
+                                <select id="evidenceCaseFilter" class="form-input">
+                                    <option>All Cases</option>
+                                    <option>DA-2023-0456</option>
+                                    <option>DA-2023-0442</option>
+                                    <option>DA-2023-0438</option>
+                                    <option>DA-2023-0421</option>
+                                </select>
+                            </div>
+                            <button id="uploadEvidenceBtn" class="btn-primary px-4 py-2 rounded-lg">
+                                <i class="fas fa-upload mr-2"></i>Upload Evidence
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="evidenceGrid">
+                            <!-- Evidence files will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Court Calendar -->
+                <div id="da-calendar" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Court Calendar</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-lg font-semibold" id="currentMonth">October 2023</h3>
+                                    <div class="flex space-x-2">
+                                        <button class="p-2 rounded-lg hover:bg-gray-700" id="prevMonth">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <button class="p-2 rounded-lg hover:bg-gray-700" id="nextMonth">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-7 gap-1 mb-4">
+                                    <div class="text-center py-2 text-gray-400">Sun</div>
+                                    <div class="text-center py-2 text-gray-400">Mon</div>
+                                    <div class="text-center py-2 text-gray-400">Tue</div>
+                                    <div class="text-center py-2 text-gray-400">Wed</div>
+                                    <div class="text-center py-2 text-gray-400">Thu</div>
+                                    <div class="text-center py-2 text-gray-400">Fri</div>
+                                    <div class="text-center py-2 text-gray-400">Sat</div>
+                                </div>
+                                
+                                <div class="grid grid-cols-7 gap-1" id="calendarDays">
+                                    <!-- Calendar days will be generated here -->
+                                </div>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mt-6">
+                                <h3 class="text-lg font-semibold mb-4">Today's Schedule</h3>
+                                <div class="space-y-4" id="todaySchedule">
+                                    <!-- Today's schedule will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Upcoming Hearings</h3>
+                                <div class="space-y-4" id="upcomingHearings">
+                                    <!-- Upcoming hearings will be populated here -->
+                                </div>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Add New Event</h3>
+                                <form id="newEventForm" class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Event Title</label>
+                                        <input type="text" id="eventTitle" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Date</label>
+                                        <input type="date" id="eventDate" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Time</label>
+                                        <input type="time" id="eventTime" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Location</label>
+                                        <input type="text" id="eventLocation" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Related Case</label>
+                                        <select id="eventCase" class="form-input w-full">
+                                            <option value="">None</option>
+                                            <option value="DA-2023-0456">DA-2023-0456: State vs. Johnson</option>
+                                            <option value="DA-2023-0442">DA-2023-0442: State vs. Davis</option>
+                                            <option value="DA-2023-0438">DA-2023-0438: State vs. Williams</option>
+                                            <option value="DA-2023-0421">DA-2023-0421: State vs. Smith</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-primary w-full py-2 rounded-lg">
+                                        Add Event
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Reports -->
+                <div id="da-reports" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Reports</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Case Statistics</h3>
+                                <div class="chart-container">
+                                    <canvas id="caseTypeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Case Outcomes</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm">Guilty Verdicts</span>
+                                            <span class="text-sm">65%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 65%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm">Plea Bargains</span>
+                                            <span class="text-sm">25%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 25%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm">Dismissed</span>
+                                            <span class="text-sm">7%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 7%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm">Acquittals</span>
+                                            <span class="text-sm">3%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 3%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Generate Report</h3>
+                                <form id="generateReportForm" class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Report Type</label>
+                                        <select id="reportType" class="form-input w-full" required>
+                                            <option value="">Select a report type</option>
+                                            <option>Case Summary</option>
+                                            <option>Evidence Inventory</option>
+                                            <option>Court Appearance</option>
+                                            <option>Monthly Statistics</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Date Range</label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <input type="date" id="reportStartDate" class="form-input" required>
+                                            <input type="date" id="reportEndDate" class="form-input" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Format</label>
+                                        <select id="reportFormat" class="form-input w-full" required>
+                                            <option value="">Select a format</option>
+                                            <option>PDF</option>
+                                            <option>Excel</option>
+                                            <option>CSV</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-primary w-full py-2 rounded-lg">
+                                        Generate Report
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold mb-4">Recent Reports</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">Report Name</th>
+                                        <th class="px-4 py-3 text-left">Type</th>
+                                        <th class="px-4 py-3 text-left">Generated</th>
+                                        <th class="px-4 py-3 text-left">Format</th>
+                                        <th class="px-4 py-3 text-left">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">Monthly Case Summary - September</td>
+                                        <td class="px-4 py-3">Case Summary</td>
+                                        <td class="px-4 py-3">Oct 1, 2023</td>
+                                        <td class="px-4 py-3">PDF</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-purple-400 hover:text-purple-300 mr-3 download-report">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300 share-report">
+                                                <i class="fas fa-share"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">Q3 Case Statistics</td>
+                                        <td class="px-4 py-3">Statistics</td>
+                                        <td class="px-4 py-3">Sep 30, 2023</td>
+                                        <td class="px-4 py-3">Excel</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-purple-400 hover:text-purple-300 mr-3 download-report">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300 share-report">
+                                                <i class="fas fa-share"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">Evidence Inventory - DA-2023-0438</td>
+                                        <td class="px-4 py-3">Evidence</td>
+                                        <td class="px-4 py-3">Sep 25, 2023</td>
+                                        <td class="px-4 py-3">PDF</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-purple-400 hover:text-purple-300 mr-3 download-report">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300 share-report">
+                                                <i class="fas fa-share"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="table-row">
+                                        <td class="px-4 py-3">Court Appearances - September</td>
+                                        <td class="px-4 py-3">Court</td>
+                                        <td class="px-4 py-3">Sep 20, 2023</td>
+                                        <td class="px-4 py-3">PDF</td>
+                                        <td class="px-4 py-3">
+                                            <button class="text-purple-400 hover:text-purple-300 mr-3 download-report">
+                                                <i class="fas fa-download"></i>
+                                            </button>
+                                            <button class="text-blue-400 hover:text-blue-300 share-report">
+                                                <i class="fas fa-share"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings -->
+                <div id="da-settings" class="portal-page hidden">
+                    <h2 class="text-2xl font-bold mb-6">Settings</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Profile Settings</h3>
+                                
+                                <form id="profileForm" class="space-y-4">
+                                    <div class="flex items-center mb-6">
+                                        <img src="https://picsum.photos/seed/da_user/80/80.jpg" alt="Profile" class="w-20 h-20 rounded-full mr-4">
+                                        <div>
+                                            <button type="button" class="btn-primary px-4 py-2 rounded-lg" id="changePhotoBtn">
+                                                Change Photo
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-gray-300 mb-2">First Name</label>
+                                            <input type="text" id="firstName" class="form-input w-full" value="District" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-300 mb-2">Last Name</label>
+                                            <input type="text" id="lastName" class="form-input w-full" value="Attorney" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Email</label>
+                                        <input type="email" id="email" class="form-input w-full" value="da@rexusgroup.com" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Department</label>
+                                        <input type="text" id="department" class="form-input w-full" value="Prosecution" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Bio</label>
+                                        <textarea id="bio" class="form-input w-full" rows="3">Experienced District Attorney with over 10 years of prosecution experience.</textarea>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-primary px-4 py-2 rounded-lg">
+                                        Save Changes
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Notification Preferences</h3>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Case Updates</p>
+                                            <p class="text-sm text-gray-400">Notify me when cases are updated</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="caseUpdates" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">New Evidence</p>
+                                            <p class="text-sm text-gray-400">Notify me when new evidence is added</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="newEvidence" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Court Dates</p>
+                                            <p class="text-sm text-gray-400">Notify me about upcoming court dates</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="courtDates" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">System Updates</p>
+                                            <p class="text-sm text-gray-400">Notify me about system maintenance</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="systemUpdates">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold mb-4">Security</h3>
+                                
+                                <form id="passwordForm" class="space-y-4">
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Current Password</label>
+                                        <input type="password" id="currentPassword" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">New Password</label>
+                                        <input type="password" id="newPassword" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-gray-300 mb-2">Confirm New Password</label>
+                                        <input type="password" id="confirmPassword" class="form-input w-full" required>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn-primary w-full py-2 rounded-lg">
+                                        Update Password
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="bg-secondary border border-gray-700 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Two-Factor Authentication</h3>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Enable 2FA</p>
+                                            <p class="text-sm text-gray-400">Add an extra layer of security</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="enable2FA">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="p-3 bg-gray-800 rounded-lg">
+                                        <p class="font-medium mb-2">Recovery Codes</p>
+                                        <p class="text-sm text-gray-400 mb-3">Save these codes in a secure place</p>
+                                        <div class="bg-gray-900 p-3 rounded font-mono text-sm">
+                                            <div>ABCD-EFGH-IJKL</div>
+                                            <div>MNOP-QRST-UVWX</div>
+                                            <div>YZAB-CDEF-GHIJ</div>
+                                            <div>KLMN-OPQR-STUV</div>
+                                        </div>
+                                        <button type="button" class="mt-3 text-sm text-purple-400 hover:text-purple-300" id="generateCodesBtn">
+                                            Generate New Codes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        // DOM Elements
+        const notification = document.getElementById('notification');
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationCenter = document.getElementById('notificationCenter');
+        const closeNotificationCenter = document.getElementById('closeNotificationCenter');
+        const caseModal = document.getElementById('caseModal');
+        const closeCaseModal = document.getElementById('closeCaseModal');
+        const cancelCaseModal = document.getElementById('cancelCaseModal');
+        const updateCase = document.getElementById('updateCase');
+        const caseTableBody = document.getElementById('caseTableBody');
+        const caseSearch = document.getElementById('caseSearch');
+        const caseTypeFilter = document.getElementById('caseTypeFilter');
+        const caseStatusFilter = document.getElementById('caseStatusFilter');
+        const evidenceSearch = document.getElementById('evidenceSearch');
+        const evidenceTypeFilter = document.getElementById('evidenceTypeFilter');
+        const evidenceCaseFilter = document.getElementById('evidenceCaseFilter');
+        const digitalRain = document.getElementById('digitalRain');
+        const uploadModal = document.getElementById('uploadModal');
+        const uploadEvidenceBtn = document.getElementById('uploadEvidenceBtn');
+        const closeUploadModal = document.getElementById('closeUploadModal');
+        const cancelUploadModal = document.getElementById('cancelUploadModal');
+        const confirmUpload = document.getElementById('confirmUpload');
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const selectedFiles = document.getElementById('selectedFiles');
+        const uploadCaseSelect = document.getElementById('uploadCaseSelect');
+        const evidenceDescription = document.getElementById('evidenceDescription');
+        const logoutDA = document.getElementById('logoutDA');
+        
+        // New Case Modal Elements
+        const newCaseModal = document.getElementById('newCaseModal');
+        const newCaseBtn = document.getElementById('newCaseBtn');
+        const closeNewCaseModal = document.getElementById('closeNewCaseModal');
+        const cancelNewCaseModal = document.getElementById('cancelNewCaseModal');
+        const createCase = document.getElementById('createCase');
+        const newCaseForm = document.getElementById('newCaseForm');
+        
+        // Portal navigation
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const portalPages = document.querySelectorAll('.portal-page');
+        
+        // Case data
+        let cases = [
+            {
+                id: 1,
+                caseId: 'DA-2023-0456',
+                title: 'State vs. Johnson',
+                type: 'Felony',
+                priority: 'High',
+                status: 'In Progress',
+                assignedAttorney: 'District Attorney',
+                lastUpdated: 'Oct 16, 2023',
+                description: 'Defendant accused of armed robbery at convenience store on September 15, 2023. Multiple witnesses and surveillance footage available.',
+                evidenceFiles: [
+                    { name: 'Police_Report.pdf', size: '2.4 MB', type: 'Document', status: 'Verified' },
+                    { name: 'Surveillance_Footage.mp4', size: '1.2 GB', type: 'Video', status: 'Verified' },
+                    { name: 'Witness_Statements.docx', size: '1.8 MB', type: 'Document', status: 'Verified' }
+                ]
+            },
+            {
+                id: 2,
+                caseId: 'DA-2023-0442',
+                title: 'State vs. Davis',
+                type: 'Misdemeanor',
+                priority: 'Medium',
+                status: 'In Progress',
+                assignedAttorney: 'District Attorney',
+                lastUpdated: 'Oct 15, 2023',
+                description: 'Defendant accused of shoplifting and resisting arrest. Incident occurred at local department store on October 5, 2023.',
+                evidenceFiles: [
+                    { name: 'Crime_Scene_Photos.zip', size: '456 MB', type: 'Images', status: 'Verified' },
+                    { name: 'Security_Camera_Footage.mp4', size: '850 MB', type: 'Video', status: 'Verified' },
+                    { name: 'Police_Report.pdf', size: '2.1 MB', type: 'Document', status: 'Verified' }
+                ]
+            },
+            {
+                id: 3,
+                caseId: 'DA-2023-0438',
+                title: 'State vs. Williams',
+                type: 'Felony',
+                priority: 'High',
+                status: 'Open',
+                assignedAttorney: 'District Attorney',
+                lastUpdated: 'Oct 14, 2023',
+                description: 'Defendant accused of assault with a deadly weapon. Incident occurred at bar on October 10, 2023. Victim sustained serious injuries.',
+                evidenceFiles: [
+                    { name: 'Medical_Records.pdf', size: '3.5 MB', type: 'Document', status: 'Verified' },
+                    { name: 'Interview_Suspect.mp4', size: '1.2 GB', type: 'Video', status: 'Pending Review' },
+                    { name: 'Financial_Records.xlsx', size: '3.2 MB', type: 'Spreadsheet', status: 'Pending Review' }
+                ]
+            },
+            {
+                id: 4,
+                caseId: 'DA-2023-0421',
+                title: 'State vs. Smith',
+                type: 'Felony',
+                priority: 'High',
+                status: 'Closed',
+                assignedAttorney: 'District Attorney',
+                lastUpdated: 'Oct 10, 2023',
+                description: 'Defendant accused of burglary and grand theft. Incident occurred at residential property on September 20, 2023. Case concluded with guilty verdict.',
+                evidenceFiles: [
+                    { name: 'Forensic_Report.pdf', size: '4.2 MB', type: 'Document', status: 'Verified' },
+                    { name: 'Fingerprints_Analysis.pdf', size: '2.8 MB', type: 'Document', status: 'Verified' },
+                    { name: 'Testimony_Transcript.pdf', size: '5.1 MB', type: 'Document', status: 'Verified' }
+                ]
+            }
+        ];
+        
+        // Evidence data
+        let evidenceFiles = [
+            {
+                id: 1,
+                name: 'Police_Report.pdf',
+                size: '2.4 MB',
+                type: 'Documents',
+                caseId: 'DA-2023-0456',
+                uploadDate: 'Oct 16, 2023',
+                status: 'Verified'
+            },
+            {
+                id: 2,
+                name: 'Crime_Scene_Photos.zip',
+                size: '456 MB',
+                type: 'Images',
+                caseId: 'DA-2023-0442',
+                uploadDate: 'Oct 15, 2023',
+                status: 'Verified'
+            },
+            {
+                id: 3,
+                name: 'Interview_Suspect.mp4',
+                size: '1.2 GB',
+                type: 'Videos',
+                caseId: 'DA-2023-0438',
+                uploadDate: 'Oct 14, 2023',
+                status: 'Pending Review'
+            },
+            {
+                id: 4,
+                name: '911_Call.mp3',
+                size: '24 MB',
+                type: 'Audio',
+                caseId: 'DA-2023-0456',
+                uploadDate: 'Oct 13, 2023',
+                status: 'Verified'
+            },
+            {
+                id: 5,
+                name: 'Witness_Statements.docx',
+                size: '1.8 MB',
+                type: 'Documents',
+                caseId: 'DA-2023-0442',
+                uploadDate: 'Oct 12, 2023',
+                status: 'Verified'
+            },
+            {
+                id: 6,
+                name: 'Financial_Records.xlsx',
+                size: '3.2 MB',
+                type: 'Other',
+                caseId: 'DA-2023-0438',
+                uploadDate: 'Oct 11, 2023',
+                status: 'Pending Review'
+            }
+        ];
+        
+        // Calendar data
+        let courtDates = [
+            {
+                id: 1,
+                title: 'State vs. Williams',
+                date: '2023-10-18',
+                time: '10:00 AM',
+                type: 'Preliminary Hearing',
+                location: 'Courtroom 3B',
+                caseId: 'DA-2023-0438'
+            },
+            {
+                id: 2,
+                title: 'State vs. Davis',
+                date: '2023-10-20',
+                time: '11:00 AM',
+                type: 'Motion Hearing',
+                location: 'Courtroom 2A',
+                caseId: 'DA-2023-0442'
+            },
+            {
+                id: 3,
+                title: 'State vs. Williams',
+                date: '2023-10-25',
+                time: '2:00 PM',
+                type: 'Preliminary Hearing',
+                location: 'Courtroom 5C',
+                caseId: 'DA-2023-0438'
+            },
+            {
+                id: 4,
+                title: 'State vs. Martinez',
+                date: '2023-10-28',
+                time: '9:00 AM',
+                type: 'Arraignment',
+                location: 'Courtroom 1A',
+                caseId: 'DA-2023-0451'
+            }
+        ];
+        
+        // Today's schedule
+        let todaySchedule = [
+            {
+                time: '9:00 AM',
+                title: 'Case Review Meeting',
+                location: 'Conference Room B',
+                type: 'meeting'
+            },
+            {
+                time: '11:00 AM',
+                title: 'Motion Hearing - State vs. Davis',
+                location: 'Courtroom 2A',
+                type: 'hearing',
+                caseId: 'DA-2023-0442'
+            },
+            {
+                time: '2:00 PM',
+                title: 'Witness Interview',
+                location: 'Interview Room 3',
+                type: 'interview'
+            },
+            {
+                time: '4:00 PM',
+                title: 'Case Preparation',
+                location: 'Office',
+                type: 'preparation'
+            }
+        ];
+        
+        // Current month and year for calendar
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        
+        // Create digital rain effect
+        function createDigitalRain() {
+            const columns = Math.floor(window.innerWidth / 20);
+            
+            for (let i = 0; i < columns; i++) {
+                const column = document.createElement('div');
+                column.className = 'rain-column';
+                column.style.left = `${i * 20}px`;
+                column.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                column.style.animationDelay = `${Math.random() * 5}s`;
+                
+                const characters = '01';
+                let text = '';
+                for (let j = 0; j < 20; j++) {
+                    text += characters.charAt(Math.floor(Math.random() * characters.length)) + '<br>';
+                }
+                column.innerHTML = text;
+                
+                digitalRain.appendChild(column);
+            }
+        }
+        
+        // Initialize digital rain
+        createDigitalRain();
+        
+        // Portal navigation
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const page = this.dataset.page;
+                
+                // Update active sidebar item
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Hide all portal pages
+                portalPages.forEach(p => p.classList.add('hidden'));
+                
+                // Show selected page
+                const targetPage = document.getElementById(`da-${page}`);
+                if (targetPage) {
+                    targetPage.classList.remove('hidden');
+                    
+                    // Initialize charts for the specific page if needed
+                    if (page === 'dashboard') {
+                        setTimeout(initDADashboardCharts, 100);
+                    } else if (page === 'reports') {
+                        setTimeout(initDAReportsCharts, 100);
+                    } else if (page === 'calendar') {
+                        setTimeout(initCalendar, 100);
+                    } else if (page === 'cases') {
+                        setTimeout(renderCaseTable, 100);
+                    } else if (page === 'evidence') {
+                        setTimeout(renderEvidenceGrid, 100);
+                    }
+                } else {
+                    console.error(`Page not found: da-${page}`);
+                    showNotification('Page not found', 'error');
+                }
+            });
+        });
+        
+        // Notification system
+        notificationBell.addEventListener('click', function() {
+            notificationCenter.classList.toggle('active');
+        });
+        
+        closeNotificationCenter.addEventListener('click', function() {
+            notificationCenter.classList.remove('active');
+        });
+        
+        // Logout functionality
+        logoutDA.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                showNotification('Logging out...', 'success');
+                setTimeout(() => {
+                    window.location.href = '#login';
+                }, 1500);
+            }
+        });
+        
+        // Case management
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.view-case')) {
+                const caseId = parseInt(e.target.closest('.view-case').dataset.id);
+                const caseData = cases.find(c => c.id === caseId);
+                
+                if (caseData) {
+                    // Populate case modal with data
+                    document.getElementById('caseId').value = caseData.caseId;
+                    document.getElementById('caseTitle').value = caseData.title;
+                    document.getElementById('caseType').value = caseData.type;
+                    document.getElementById('casePriority').value = caseData.priority;
+                    document.getElementById('assignedAttorney').value = caseData.assignedAttorney;
+                    document.getElementById('caseStatus').value = caseData.status;
+                    document.getElementById('caseDescription').value = caseData.description;
+                    
+                    // Populate evidence files
+                    const evidenceFilesContainer = document.getElementById('evidenceFiles');
+                    evidenceFilesContainer.innerHTML = '';
+                    
+                    caseData.evidenceFiles.forEach(file => {
+                        const fileElement = document.createElement('div');
+                        fileElement.className = 'flex items-center justify-between p-2 bg-gray-800 rounded';
+                        
+                        const statusBadge = file.status === 'Verified' 
+                            ? '<span class="badge badge-success">Verified</span>'
+                            : '<span class="badge badge-warning">Pending Review</span>';
+                        
+                        fileElement.innerHTML = `
+                            <div>
+                                <p class="text-sm font-medium">${file.name}</p>
+                                <p class="text-xs text-gray-400">${file.type} • ${file.size}</p>
+                            </div>
+                            <div class="flex items-center">
+                                ${statusBadge}
+                                <button class="text-purple-400 hover:text-purple-300 ml-2">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        `;
+                        
+                        evidenceFilesContainer.appendChild(fileElement);
+                    });
+                    
+                    caseModal.classList.add('active');
+                }
+            }
+        });
+        
+        // Close case modal
+        closeCaseModal.addEventListener('click', function() {
+            caseModal.classList.remove('active');
+        });
+        
+        cancelCaseModal.addEventListener('click', function() {
+            caseModal.classList.remove('active');
+        });
+        
+        // Update case status
+        updateCase.addEventListener('click', function() {
+            const caseIdValue = document.getElementById('caseId').value;
+            const newStatus = document.getElementById('caseStatus').value;
+            
+            const caseIndex = cases.findIndex(c => c.caseId === caseIdValue);
+            if (caseIndex !== -1) {
+                cases[caseIndex].status = newStatus;
+                cases[caseIndex].lastUpdated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                
+                renderCaseTable();
+                caseModal.classList.remove('active');
+                showNotification('Case status updated successfully', 'success');
+            }
+        });
+        
+        // New case button
+        newCaseBtn.addEventListener('click', function() {
+            newCaseModal.classList.add('active');
+        });
+        
+        // Close new case modal
+        closeNewCaseModal.addEventListener('click', function() {
+            newCaseModal.classList.remove('active');
+        });
+        
+        cancelNewCaseModal.addEventListener('click', function() {
+            newCaseModal.classList.remove('active');
+        });
+        
+        // Create new case
+        createCase.addEventListener('click', function() {
+            const title = document.getElementById('newCaseTitle').value;
+            const type = document.getElementById('newCaseType').value;
+            const priority = document.getElementById('newCasePriority').value;
+            const attorney = document.getElementById('newCaseAttorney').value;
+            const status = document.getElementById('newCaseStatus').value;
+            const description = document.getElementById('newCaseDescription').value;
+            
+            // Validate required fields
+            if (!title || !type || !priority) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Generate new case ID
+            const currentYear = new Date().getFullYear();
+            const nextId = Math.max(...cases.map(c => c.id)) + 1;
+            const caseId = `DA-${currentYear}-${String(nextId).padStart(4, '0')}`;
+            
+            // Create new case object
+            const newCase = {
+                id: nextId,
+                caseId: caseId,
+                title: title,
+                type: type,
+                priority: priority,
+                status: status || 'Open',
+                assignedAttorney: attorney || 'District Attorney',
+                lastUpdated: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                description: description || '',
+                evidenceFiles: []
+            };
+            
+            // Add to cases array
+            cases.push(newCase);
+            
+            // Reset form
+            newCaseForm.reset();
+            
+            // Close modal
+            newCaseModal.classList.remove('active');
+            
+            // Refresh case table
+            renderCaseTable();
+            
+            // Show success notification
+            showNotification(`Case ${caseId} created successfully`, 'success');
+        });
+        
+        // Search and filter cases
+        caseSearch.addEventListener('input', renderCaseTable);
+        caseTypeFilter.addEventListener('change', renderCaseTable);
+        caseStatusFilter.addEventListener('change', renderCaseTable);
+        
+        // Render case table
+        function renderCaseTable() {
+            const searchTerm = caseSearch.value.toLowerCase();
+            const typeFilterValue = caseTypeFilter.value;
+            const statusFilterValue = caseStatusFilter.value;
+            
+            const filteredCases = cases.filter(caseData => {
+                const matchesSearch = caseData.caseId.toLowerCase().includes(searchTerm) || 
+                                    caseData.title.toLowerCase().includes(searchTerm);
+                const matchesType = typeFilterValue === 'All Types' || caseData.type === typeFilterValue;
+                const matchesStatus = statusFilterValue === 'All Statuses' || caseData.status === statusFilterValue;
+                
+                return matchesSearch && matchesType && matchesStatus;
+            });
+            
+            caseTableBody.innerHTML = '';
+            
+            filteredCases.forEach(caseData => {
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                
+                const priorityBadge = getPriorityBadge(caseData.priority);
+                const statusBadge = getStatusBadge(caseData.status);
+                const actionButtons = getCaseActionButtons(caseData);
+                
+                row.innerHTML = `
+                    <td class="px-4 py-3">${caseData.caseId}</td>
+                    <td class="px-4 py-3">${caseData.title}</td>
+                    <td class="px-4 py-3">${caseData.type}</td>
+                    <td class="px-4 py-3">${priorityBadge}</td>
+                    <td class="px-4 py-3">${statusBadge}</td>
+                    <td class="px-4 py-3">${caseData.lastUpdated}</td>
+                    <td class="px-4 py-3">${actionButtons}</td>
+                `;
+                
+                caseTableBody.appendChild(row);
+            });
+        }
+        
+        // Get priority badge HTML
+        function getPriorityBadge(priority) {
+            switch (priority) {
+                case 'High':
+                    return '<span class="badge badge-danger">High</span>';
+                case 'Medium':
+                    return '<span class="badge badge-warning">Medium</span>';
+                case 'Low':
+                    return '<span class="badge badge-success">Low</span>';
+                default:
+                    return '<span class="badge badge-warning">Unknown</span>';
+            }
+        }
+        
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            switch (status) {
+                case 'Open':
+                    return '<span class="badge badge-success">Open</span>';
+                case 'In Progress':
+                    return '<span class="badge badge-warning">In Progress</span>';
+                case 'Pending Review':
+                    return '<span class="badge badge-purple">Pending Review</span>';
+                case 'Closed':
+                    return '<span class="badge badge-purple">Closed</span>';
+                default:
+                    return '<span class="badge badge-warning">Unknown</span>';
+            }
+        }
+        
+        // Get case action buttons HTML
+        function getCaseActionButtons(caseData) {
+            if (caseData.status === 'Closed') {
+                return `
+                    <button class="text-purple-400 hover:text-purple-300 mr-3 view-case" data-id="${caseData.id}">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="text-gray-400 hover:text-gray-300" disabled>
+                        <i class="fas fa-edit"></i>
+                    </button>
+                `;
+            } else {
+                return `
+                    <button class="text-purple-400 hover:text-purple-300 mr-3 view-case" data-id="${caseData.id}">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="text-blue-400 hover:text-blue-300 mr-3 edit-case" data-id="${caseData.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                `;
+            }
+        }
+        
+        // Evidence repository
+        uploadEvidenceBtn.addEventListener('click', function() {
+            uploadModal.classList.add('active');
+        });
+        
+        closeUploadModal.addEventListener('click', function() {
+            uploadModal.classList.remove('active');
+        });
+        
+        cancelUploadModal.addEventListener('click', function() {
+            uploadModal.classList.remove('active');
+        });
+        
+        // File upload area
+        fileUploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileUploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            fileUploadArea.classList.add('drag-over');
+        });
+        
+        fileUploadArea.addEventListener('dragleave', function() {
+            fileUploadArea.classList.remove('drag-over');
+        });
+        
+        fileUploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            fileUploadArea.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+        
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+        
+        function handleFiles(files) {
+            selectedFiles.innerHTML = '';
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileElement = document.createElement('div');
+                fileElement.className = 'flex items-center justify-between p-2 bg-gray-800 rounded';
+                fileElement.innerHTML = `
+                    <div>
+                        <p class="text-sm font-medium">${file.name}</p>
+                        <p class="text-xs text-gray-400">${formatFileSize(file.size)}</p>
+                    </div>
+                    <button class="text-red-400 hover:text-red-300 remove-file">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                selectedFiles.appendChild(fileElement);
+            }
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Confirm upload
+        confirmUpload.addEventListener('click', function() {
+            const caseId = uploadCaseSelect.value;
+            const description = evidenceDescription.value;
+            const files = fileInput.files;
+            
+            if (!caseId) {
+                showNotification('Please select a case', 'error');
+                return;
+            }
+            
+            if (files.length === 0) {
+                showNotification('Please select at least one file', 'error');
+                return;
+            }
+            
+            // Simulate file upload
+            showNotification('Uploading files...', 'success');
+            
+            setTimeout(() => {
+                // Add files to evidence list
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const newEvidence = {
+                        id: evidenceFiles.length + 1,
+                        name: file.name,
+                        size: formatFileSize(file.size),
+                        type: getFileType(file.name),
+                        caseId: caseId,
+                        uploadDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                        status: 'Pending Review'
+                    };
+                    
+                    evidenceFiles.push(newEvidence);
+                }
+                
+                // Reset form
+                uploadCaseSelect.value = '';
+                evidenceDescription.value = '';
+                fileInput.value = '';
+                selectedFiles.innerHTML = '';
+                
+                // Close modal
+                uploadModal.classList.remove('active');
+                
+                // Refresh evidence grid
+                renderEvidenceGrid();
+                
+                showNotification('Files uploaded successfully', 'success');
+            }, 1500);
+        });
+        
+        function getFileType(filename) {
+            const extension = filename.split('.').pop().toLowerCase();
+            
+            if (['pdf', 'doc', 'docx', 'txt'].includes(extension)) {
+                return 'Documents';
+            } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(extension)) {
+                return 'Images';
+            } else if (['mp4', 'avi', 'mov', 'wmv', 'flv'].includes(extension)) {
+                return 'Videos';
+            } else if (['mp3', 'wav', 'aac', 'flac'].includes(extension)) {
+                return 'Audio';
+            } else {
+                return 'Other';
+            }
+        }
+        
+        // Search and filter evidence
+        evidenceSearch.addEventListener('input', renderEvidenceGrid);
+        evidenceTypeFilter.addEventListener('change', renderEvidenceGrid);
+        evidenceCaseFilter.addEventListener('change', renderEvidenceGrid);
+        
+        // Render evidence grid
+        function renderEvidenceGrid() {
+            const searchTerm = evidenceSearch.value.toLowerCase();
+            const typeFilterValue = evidenceTypeFilter.value;
+            const caseFilterValue = evidenceCaseFilter.value;
+            
+            const filteredEvidence = evidenceFiles.filter(file => {
+                const matchesSearch = file.name.toLowerCase().includes(searchTerm);
+                const matchesType = typeFilterValue === 'All Types' || file.type === typeFilterValue;
+                const matchesCase = caseFilterValue === 'All Cases' || file.caseId === caseFilterValue;
+                
+                return matchesSearch && matchesType && matchesCase;
+            });
+            
+            const evidenceGrid = document.getElementById('evidenceGrid');
+            evidenceGrid.innerHTML = '';
+            
+            filteredEvidence.forEach(file => {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'evidence-file';
+                
+                const fileIcon = getFileIcon(file.type);
+                const statusBadge = file.status === 'Verified' 
+                    ? '<span class="badge badge-success">Verified</span>'
+                    : '<span class="badge badge-warning">Pending Review</span>';
+                
+                fileElement.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex items-center">
+                            <i class="${fileIcon} text-xl mr-2"></i>
+                            <div>
+                                <p class="font-medium">${file.name}</p>
+                                <p class="text-xs text-gray-400">${file.size}</p>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="text-gray-400 hover:text-white">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-400 mb-2">
+                        <p>Case: ${file.caseId}</p>
+                        <p>Uploaded: ${file.uploadDate}</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        ${statusBadge}
+                        <button class="text-purple-400 hover:text-purple-300 download-evidence" data-id="${file.id}">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                `;
+                
+                evidenceGrid.appendChild(fileElement);
+            });
+        }
+        
+        function getFileIcon(type) {
+            switch (type) {
+                case 'Documents':
+                    return 'fas fa-file-pdf text-red-400';
+                case 'Images':
+                    return 'fas fa-file-image text-green-400';
+                case 'Videos':
+                    return 'fas fa-file-video text-blue-400';
+                case 'Audio':
+                    return 'fas fa-file-audio text-yellow-400';
+                default:
+                    return 'fas fa-file text-gray-400';
+            }
+        }
+        
+        // Download evidence
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.download-evidence')) {
+                const fileId = parseInt(e.target.closest('.download-evidence').dataset.id);
+                const file = evidenceFiles.find(f => f.id === fileId);
+                
+                if (file) {
+                    showNotification(`Downloading ${file.name}...`, 'success');
+                    
+                    // Simulate download
+                    setTimeout(() => {
+                        showNotification(`${file.name} downloaded successfully`, 'success');
+                    }, 1500);
+                }
+            }
+        });
+        
+        // Calendar functionality
+        function initCalendar() {
+            renderCalendar();
+            renderTodaySchedule();
+            renderUpcomingHearings();
+            
+            // Add event listeners for month navigation
+            document.getElementById('prevMonth').addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                updateCalendarHeader();
+                renderCalendar();
+                renderUpcomingHearings();
+            });
+            
+            document.getElementById('nextMonth').addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                updateCalendarHeader();
+                renderCalendar();
+                renderUpcomingHearings();
+            });
+        }
+        
+        function updateCalendarHeader() {
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        }
+        
+        function renderCalendar() {
+            const calendarDays = document.getElementById('calendarDays');
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // Clear calendar
+            calendarDays.innerHTML = '';
+            
+            // Add empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'text-center py-2 text-gray-500';
+                emptyDay.textContent = '';
+                calendarDays.appendChild(emptyDay);
+            }
+            
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'text-center py-2 cursor-pointer hover:bg-gray-700 rounded';
+                dayElement.textContent = day;
+                
+                // Check if this day has any court dates
+                const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasCourtDate = courtDates.some(date => date.date === dateString);
+                
+                if (hasCourtDate) {
+                    dayElement.classList.add('bg-purple-900', 'bg-opacity-30', 'rounded-lg', 'relative');
+                    
+                    const indicator = document.createElement('div');
+                    indicator.className = 'absolute bottom-0 left-0 right-0 h-1 bg-purple-500 rounded-b-lg';
+                    dayElement.appendChild(indicator);
+                }
+                
+                // Highlight today
+                const today = new Date();
+                if (currentYear === today.getFullYear() && currentMonth === today.getMonth() && day === today.getDate()) {
+                    dayElement.classList.add('bg-purple-800', 'bg-opacity-50', 'rounded-lg');
+                }
+                
+                calendarDays.appendChild(dayElement);
+            }
+        }
+        
+        function renderTodaySchedule() {
+            const todayScheduleContainer = document.getElementById('todaySchedule');
+            todayScheduleContainer.innerHTML = '';
+            
+            todaySchedule.forEach(item => {
+                const scheduleItem = document.createElement('div');
+                scheduleItem.className = 'flex';
+                
+                const timeElement = document.createElement('div');
+                timeElement.className = 'w-16 text-sm text-gray-400';
+                timeElement.textContent = item.time;
+                
+                const contentElement = document.createElement('div');
+                contentElement.className = 'flex-1 ml-4 pb-4 border-l border-gray-700 pl-4';
+                
+                const cardElement = document.createElement('div');
+                
+                if (item.type === 'hearing') {
+                    cardElement.className = 'bg-purple-900 bg-opacity-30 rounded-lg p-3 border border-purple-700';
+                } else {
+                    cardElement.className = 'bg-gray-800 rounded-lg p-3';
+                }
+                
+                cardElement.innerHTML = `
+                    <p class="font-medium">${item.title}</p>
+                    <p class="text-sm text-gray-400">${item.location}</p>
+                `;
+                
+                contentElement.appendChild(cardElement);
+                scheduleItem.appendChild(timeElement);
+                scheduleItem.appendChild(contentElement);
+                todayScheduleContainer.appendChild(scheduleItem);
+            });
+        }
+        
+        function renderUpcomingHearings() {
+            const upcomingHearingsContainer = document.getElementById('upcomingHearings');
+            upcomingHearingsContainer.innerHTML = '';
+            
+            // Sort court dates by date
+            const sortedCourtDates = [...courtDates].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // Filter out dates that have already passed
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const upcomingDates = sortedCourtDates.filter(date => new Date(date.date) >= today);
+            
+            // Display only the next 4 upcoming hearings
+            const nextHearings = upcomingDates.slice(0, 4);
+            
+            nextHearings.forEach(hearing => {
+                const hearingElement = document.createElement('div');
+                hearingElement.className = 'border-l-4 border-purple-500 pl-4 py-1';
+                
+                const date = new Date(hearing.date);
+                const formattedDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                
+                hearingElement.innerHTML = `
+                    <div class="flex justify-between">
+                        <p class="font-medium">${hearing.title}</p>
+                        <span class="text-sm text-gray-400">${formattedDate}</span>
+                    </div>
+                    <p class="text-sm text-gray-400">${hearing.type}</p>
+                    <p class="text-sm text-gray-400">${hearing.location}</p>
+                `;
+                
+                upcomingHearingsContainer.appendChild(hearingElement);
+            });
+        }
+        
+        // New event form
+        document.getElementById('newEventForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('eventTitle').value;
+            const date = document.getElementById('eventDate').value;
+            const time = document.getElementById('eventTime').value;
+            const location = document.getElementById('eventLocation').value;
+            const caseId = document.getElementById('eventCase').value;
+            
+            // Create new event
+            const newEvent = {
+                id: courtDates.length + 1,
+                title: title,
+                date: date,
+                time: time,
+                type: 'Custom Event',
+                location: location,
+                caseId: caseId || null
+            };
+            
+            // Add to court dates
+            courtDates.push(newEvent);
+            
+            // Reset form
+            this.reset();
+            
+            // Refresh calendar
+            renderCalendar();
+            renderUpcomingHearings();
+            
+            showNotification('Event added successfully', 'success');
+        });
+        
+        // Generate report form
+        document.getElementById('generateReportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('reportStartDate').value;
+            const endDate = document.getElementById('reportEndDate').value;
+            const format = document.getElementById('reportFormat').value;
+            
+            // Simulate report generation
+            showNotification('Generating report...', 'success');
+            
+            setTimeout(() => {
+                showNotification(`${reportType} report generated successfully`, 'success');
+                
+                // Reset form
+                this.reset();
+            }, 2000);
+        });
+        
+        // Profile form
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulate profile update
+            showNotification('Profile updated successfully', 'success');
+        });
+        
+        // Password form
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showNotification('Passwords do not match', 'error');
+                return;
+            }
+            
+            // Simulate password update
+            showNotification('Password updated successfully', 'success');
+            
+            // Reset form
+            this.reset();
+        });
+        
+        // Change photo button
+        document.getElementById('changePhotoBtn').addEventListener('click', function() {
+            showNotification('Photo change feature coming soon!', 'warning');
+        });
+        
+        // Generate recovery codes button
+        document.getElementById('generateCodesBtn').addEventListener('click', function() {
+            showNotification('New recovery codes generated', 'success');
+        });
+        
+        // Download report button
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.download-report')) {
+                showNotification('Downloading report...', 'success');
+                
+                setTimeout(() => {
+                    showNotification('Report downloaded successfully', 'success');
+                }, 1500);
+            }
+        });
+        
+        // Share report button
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.share-report')) {
+                showNotification('Report sharing feature coming soon!', 'warning');
+            }
+        });
+        
+        // Notification function
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Initialize DA Dashboard Charts
+        function initDADashboardCharts() {
+            // DA Case Stats Chart
+            const ctx = document.getElementById('caseStatsChartDA');
+            if (ctx) {
+                // Check if chart already exists
+                if (ctx.chart) {
+                    ctx.chart.destroy();
+                }
+                
+                try {
+                    ctx.chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                            datasets: [{
+                                label: 'New Cases',
+                                data: [12, 19, 15, 25, 22, 30, 28, 35, 32, 24],
+                                backgroundColor: 'rgba(139, 92, 246, 0.5)',
+                                borderColor: 'rgba(139, 92, 246, 1)',
+                                borderWidth: 1
+                            }, {
+                                label: 'Closed Cases',
+                                data: [8, 15, 12, 20, 18, 25, 22, 30, 28, 20],
+                                backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                                borderColor: 'rgba(16, 185, 129, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)'
+                                    },
+                                    ticks: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: 'rgba(255, 255, 255, 0.7)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing case stats chart:', error);
+                }
+            }
+        }
+        
+        // Initialize DA Reports Charts
+        function initDAReportsCharts() {
+            // Case Type Chart
+            const ctx = document.getElementById('caseTypeChart');
+            if (ctx) {
+                // Check if chart already exists
+                if (ctx.chart) {
+                    ctx.chart.destroy();
+                }
+                
+                try {
+                    ctx.chart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Felony', 'Misdemeanor', 'Juvenile', 'Appeal'],
+                            datasets: [{
+                                data: [45, 30, 15, 10],
+                                backgroundColor: [
+                                    'rgba(239, 68, 68, 0.8)',
+                                    'rgba(245, 158, 11, 0.8)',
+                                    'rgba(16, 185, 129, 0.8)',
+                                    'rgba(139, 92, 246, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgba(239, 68, 68, 1)',
+                                    'rgba(245, 158, 11, 1)',
+                                    'rgba(16, 185, 129, 1)',
+                                    'rgba(139, 92, 246, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: 'rgba(255, 255, 255, 0.7)',
+                                        padding: 20
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing case type chart:', error);
+                }
+            }
+        }
+        
+        // Initialize dashboard charts on page load
+        window.addEventListener('load', function() {
+            initDADashboardCharts();
+        });
+    </script>
+</body>
+</html>
