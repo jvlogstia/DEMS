@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Existing styles remain unchanged */
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
         
         :root {
@@ -542,6 +543,16 @@
             width: 0;
             transition: width 0.3s ease;
         }
+        
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
     </style>
 </head>
 <body class="bg-gradient-security">
@@ -697,10 +708,6 @@
                         <label class="block text-gray-300 mb-2" for="evidenceCase">Select Case</label>
                         <select id="evidenceCase" class="form-input w-full" required>
                             <option value="">Select Case</option>
-                            <option value="LEA-2023-0789">LEA-2023-0789 - State vs. Thompson</option>
-                            <option value="LEA-2023-0782">LEA-2023-0782 - State vs. Rodriguez</option>
-                            <option value="LEA-2023-0775">LEA-2023-0775 - State vs. Garcia</option>
-                            <option value="LEA-2023-0768">LEA-2023-0768 - State vs. Wilson</option>
                         </select>
                     </div>
                     
@@ -752,10 +759,10 @@
                     </button>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <img src="{{ url_for('static', filename='user_lea.jpg') }}" alt="User" class="w-8 h-8 rounded-full">
-                    <span class="text-sm">{{ session.get('username', 'Legal Officer') }}</span>
+                    <img src="https://picsum.photos/seed/user123/40/40.jpg" alt="User" class="w-8 h-8 rounded-full">
+                    <span class="text-sm">Legal Officer</span>
                 </div>
-                <a href="{{ url_for('logout') }}" id="logoutLEA" class="text-gray-400 hover:text-white" aria-label="Logout">
+                <a href="#" id="logoutLEA" class="text-gray-400 hover:text-white" aria-label="Logout">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
             </div>
@@ -806,8 +813,8 @@
                                 <h3 class="text-gray-400">Active Cases</h3>
                                 <i class="fas fa-briefcase text-pink-400" aria-hidden="true"></i>
                             </div>
-                            <p class="text-3xl font-bold">32</p>
-                            <p class="text-sm text-gray-400">+5 this month</p>
+                            <p class="text-3xl font-bold" id="activeCasesCount">32</p>
+                            <p class="text-sm text-gray-400" id="activeCasesChange">+5 this month</p>
                             <div class="mt-2">
                                 <div class="progress-bar">
                                     <div class="progress-fill" style="width: 70%"></div>
@@ -820,8 +827,8 @@
                                 <h3 class="text-gray-400">Pending Reviews</h3>
                                 <i class="fas fa-clipboard-check text-pink-400" aria-hidden="true"></i>
                             </div>
-                            <p class="text-3xl font-bold">14</p>
-                            <p class="text-sm text-gray-400">Require attention</p>
+                            <p class="text-3xl font-bold" id="pendingReviewsCount">14</p>
+                            <p class="text-sm text-gray-400" id="pendingReviewsChange">Require attention</p>
                             <div class="mt-2">
                                 <div class="progress-bar">
                                     <div class="progress-fill" style="width: 45%"></div>
@@ -834,8 +841,8 @@
                                 <h3 class="text-gray-400">Evidence Files</h3>
                                 <i class="fas fa-folder text-pink-400" aria-hidden="true"></i>
                             </div>
-                            <p class="text-3xl font-bold">528</p>
-                            <p class="text-sm text-gray-400">Across all cases</p>
+                            <p class="text-3xl font-bold" id="evidenceFilesCount">528</p>
+                            <p class="text-sm text-gray-400" id="evidenceFilesChange">Across all cases</p>
                             <div class="mt-2">
                                 <div class="progress-bar">
                                     <div class="progress-fill" style="width: 90%"></div>
@@ -848,8 +855,8 @@
                                 <h3 class="text-gray-400">Case Success</h3>
                                 <i class="fas fa-chart-line text-pink-400" aria-hidden="true"></i>
                             </div>
-                            <p class="text-3xl font-bold">92%</p>
-                            <p class="text-sm text-gray-400">Win rate</p>
+                            <p class="text-3xl font-bold" id="caseSuccessRate">92%</p>
+                            <p class="text-sm text-gray-400" id="caseSuccessChange">Win rate</p>
                             <div class="mt-2">
                                 <div class="progress-bar">
                                     <div class="progress-fill" style="width: 92%"></div>
@@ -862,7 +869,7 @@
                         <div>
                             <h3 class="text-lg font-semibold mb-4">Recent Case Activity</h3>
                             <div class="bg-secondary border border-gray-700 rounded-lg p-4">
-                                <div class="space-y-3">
+                                <div class="space-y-3" id="recentActivity">
                                     <div class="flex items-start">
                                         <i class="fas fa-plus-circle text-green-400 mt-1 mr-3" aria-hidden="true"></i>
                                         <div class="flex-1">
@@ -924,7 +931,7 @@
                                             <th class="px-4 py-3 text-left">Location</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="upcomingCourtDates">
                                         <tr class="table-row">
                                             <td class="px-4 py-3">Oct 18, 2023</td>
                                             <td class="px-4 py-3">LEA-2023-0775</td>
@@ -1003,93 +1010,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="caseTableBody">
-                                    <tr class="table-row">
-                                        <td class="px-4 py-3">LEA-2023-0789</td>
-                                        <td class="px-4 py-3">State vs. Thompson</td>
-                                        <td class="px-4 py-3">John Thompson</td>
-                                        <td class="px-4 py-3">Criminal</td>
-                                        <td class="px-4 py-3">
-                                            <span class="badge badge-danger">High</span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span class="badge badge-warning">In Progress</span>
-                                        </td>
-                                        <td class="px-4 py-3">Oct 16, 2023</td>
-                                        <td class="px-4 py-3">
-                                            <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="1" aria-label="View case">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="text-blue-400 hover:text-blue-300 mr-3 edit-case" data-id="1" aria-label="Edit case">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    
-                                    <tr class="table-row">
-                                        <td class="px-4 py-3">LEA-2023-0782</td>
-                                        <td class="px-4 py-3">State vs. Rodriguez</td>
-                                        <td class="px-4 py-3">Maria Rodriguez</td>
-                                        <td class="px-4 py-3">Civil</td>
-                                        <td class="px-4 py-3">
-                                            <span class="badge badge-warning">Medium</span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span class="badge badge-warning">In Progress</span>
-                                        </td>
-                                        <td class="px-4 py-3">Oct 15, 2023</td>
-                                        <td class="px-4 py-3">
-                                            <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="2" aria-label="View case">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="text-blue-400 hover:text-blue-300 mr-3 edit-case" data-id="2" aria-label="Edit case">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    
-                                    <tr class="table-row">
-                                        <td class="px-4 py-3">LEA-2023-0775</td>
-                                        <td class="px-4 py-3">State vs. Garcia</td>
-                                        <td class="px-4 py-3">Carlos Garcia</td>
-                                        <td class="px-4 py-3">Criminal</td>
-                                        <td class="px-4 py-3">
-                                            <span class="badge badge-danger">High</span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span class="badge badge-success">Open</span>
-                                        </td>
-                                        <td class="px-4 py-3">Oct 14, 2023</td>
-                                        <td class="px-4 py-3">
-                                            <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="3" aria-label="View case">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="text-blue-400 hover:text-blue-300 mr-3 edit-case" data-id="3" aria-label="Edit case">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    
-                                    <tr class="table-row">
-                                        <td class="px-4 py-3">LEA-2023-0768</td>
-                                        <td class="px-4 py-3">State vs. Wilson</td>
-                                        <td class="px-4 py-3">Robert Wilson</td>
-                                        <td class="px-4 py-3">Criminal</td>
-                                        <td class="px-4 py-3">
-                                            <span class="badge badge-danger">High</span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span class="badge badge-purple">Closed</span>
-                                        </td>
-                                        <td class="px-4 py-3">Oct 10, 2023</td>
-                                        <td class="px-4 py-3">
-                                            <button class="text-pink-400 hover:text-pink-300 mr-3 view-case" data-id="4" aria-label="View case">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="text-gray-400 hover:text-gray-300" disabled>
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    <!-- Cases will be populated here -->
                                 </tbody>
                             </table>
                         </div>
@@ -1114,10 +1035,6 @@
                                 </select>
                                 <select id="evidenceCaseFilter" class="form-input" aria-label="Filter by case">
                                     <option>All Cases</option>
-                                    <option>LEA-2023-0789</option>
-                                    <option>LEA-2023-0782</option>
-                                    <option>LEA-2023-0775</option>
-                                    <option>LEA-2023-0768</option>
                                 </select>
                             </div>
                             <button id="uploadEvidenceBtn" class="btn-primary px-4 py-2 rounded-lg">
@@ -1126,167 +1043,7 @@
                         </div>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="evidenceGrid">
-                            <div class="evidence-file">
-                                <div class="flex items-start justify-between mb-2">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-file-pdf text-red-400 text-xl mr-2" aria-hidden="true"></i>
-                                        <div>
-                                            <p class="font-medium">Police_Report.pdf</p>
-                                            <p class="text-xs text-gray-400">2.4 MB</p>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-gray-400 mb-2">
-                                    <p>Case: LEA-2023-0789</p>
-                                    <p>Uploaded: Oct 16, 2023</p>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="badge badge-success">Verified</span>
-                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="evidence-file">
-                                <div class="flex items-start justify-between mb-2">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-file-image text-green-400 text-xl mr-2" aria-hidden="true"></i>
-                                        <div>
-                                            <p class="font-medium">Crime_Scene_Photos.zip</p>
-                                            <p class="text-xs text-gray-400">456 MB</p>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-gray-400 mb-2">
-                                    <p>Case: LEA-2023-0782</p>
-                                    <p>Uploaded: Oct 15, 2023</p>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="badge badge-success">Verified</span>
-                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="evidence-file">
-                                <div class="flex items-start justify-between mb-2">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-file-video text-blue-400 text-xl mr-2" aria-hidden="true"></i>
-                                        <div>
-                                            <p class="font-medium">Interview_Witness.mp4</p>
-                                            <p class="text-xs text-gray-400">1.2 GB</p>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-gray-400 mb-2">
-                                    <p>Case: LEA-2023-0775</p>
-                                    <p>Uploaded: Oct 14, 2023</p>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="badge badge-warning">Pending Review</span>
-                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="evidence-file">
-                                <div class="flex items-start justify-between mb-2">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-file-audio text-yellow-400 text-xl mr-2" aria-hidden="true"></i>
-                                        <div>
-                                            <p class="font-medium">911_Call.mp3</p>
-                                            <p class="text-xs text-gray-400">24 MB</p>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-gray-400 mb-2">
-                                    <p>Case: LEA-2023-0789</p>
-                                    <p>Uploaded: Oct 13, 2023</p>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="badge badge-success">Verified</span>
-                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="evidence-file">
-                                <div class="flex items-start justify-between mb-2">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-file-word text-blue-400 text-xl mr-2" aria-hidden="true"></i>
-                                        <div>
-                                            <p class="font-medium">Witness_Statements.docx</p>
-                                            <p class="text-xs text-gray-400">1.8 MB</p>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-gray-400 mb-2">
-                                    <p>Case: LEA-2023-0782</p>
-                                    <p>Uploaded: Oct 12, 2023</p>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="badge badge-success">Verified</span>
-                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="evidence-file">
-                                <div class="flex items-start justify-between mb-2">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-file-excel text-green-400 text-xl mr-2" aria-hidden="true"></i>
-                                        <div>
-                                            <p class="font-medium">Financial_Records.xlsx</p>
-                                            <p class="text-xs text-gray-400">3.2 MB</p>
-                                        </div>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="text-gray-400 hover:text-white" aria-label="More options">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="text-xs text-gray-400 mb-2">
-                                    <p>Case: LEA-2023-0775</p>
-                                    <p>Uploaded: Oct 11, 2023</p>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="badge badge-warning">Pending Review</span>
-                                    <button class="text-pink-400 hover:text-pink-300" aria-label="Download file">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            <!-- Evidence files will be populated here -->
                         </div>
                     </div>
                 </div>
@@ -1658,45 +1415,7 @@
                             <div class="bg-secondary border border-gray-700 rounded-lg p-6 mt-6">
                                 <h3 class="text-lg font-semibold mb-4">Today's Schedule</h3>
                                 <div class="space-y-4" id="todaySchedule">
-                                    <div class="flex">
-                                        <div class="w-16 text-sm text-gray-400">9:00 AM</div>
-                                        <div class="flex-1 ml-4 pb-4 border-l border-gray-700 pl-4">
-                                            <div class="bg-gray-800 rounded-lg p-3">
-                                                <p class="font-medium">Client Meeting</p>
-                                                <p class="text-sm text-gray-400">Conference Room A</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex">
-                                        <div class="w-16 text-sm text-gray-400">11:00 AM</div>
-                                        <div class="flex-1 ml-4 pb-4 border-l border-gray-700 pl-4">
-                                            <div class="bg-pink-900 bg-opacity-30 rounded-lg p-3 border border-pink-700">
-                                                <p class="font-medium">Preliminary Hearing - Garcia vs. State</p>
-                                                <p class="text-sm text-gray-400">Courtroom 3B</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex">
-                                        <div class="w-16 text-sm text-gray-400">2:00 PM</div>
-                                        <div class="flex-1 ml-4 pb-4 border-l border-gray-700 pl-4">
-                                            <div class="bg-gray-800 rounded-lg p-3">
-                                                <p class="font-medium">Case Preparation</p>
-                                                <p class="text-sm text-gray-400">Office</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex">
-                                        <div class="w-16 text-sm text-gray-400">4:00 PM</div>
-                                        <div class="flex-1 ml-4 pb-4 border-l border-gray-700 pl-4">
-                                            <div class="bg-gray-800 rounded-lg p-3">
-                                                <p class="font-medium">Legal Research</p>
-                                                <p class="text-sm text-gray-400">Law Library</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <!-- Today's schedule will be populated here -->
                                 </div>
                             </div>
                         </div>
@@ -1704,42 +1423,8 @@
                         <div>
                             <div class="bg-secondary border border-gray-700 rounded-lg p-6 mb-6">
                                 <h3 class="text-lg font-semibold mb-4">Upcoming Hearings</h3>
-                                <div class="space-y-4">
-                                    <div class="border-l-4 border-pink-500 pl-4 py-1">
-                                        <div class="flex justify-between">
-                                            <p class="font-medium">Garcia vs. State</p>
-                                            <span class="text-sm text-gray-400">Oct 18</span>
-                                        </div>
-                                        <p class="text-sm text-gray-400">Preliminary Hearing</p>
-                                        <p class="text-sm text-gray-400">Courtroom 3B</p>
-                                    </div>
-                                    
-                                    <div class="border-l-4 border-pink-500 pl-4 py-1">
-                                        <div class="flex justify-between">
-                                            <p class="font-medium">Garcia vs. State</p>
-                                            <span class="text-sm text-gray-400">Oct 20</span>
-                                        </div>
-                                        <p class="text-sm text-gray-400">Arraignment</p>
-                                        <p class="text-sm text-gray-400">Courtroom 2A</p>
-                                    </div>
-                                    
-                                    <div class="border-l-4 border-pink-500 pl-4 py-1">
-                                        <div class="flex justify-between">
-                                            <p class="font-medium">Rodriguez vs. State</p>
-                                            <span class="text-sm text-gray-400">Oct 24</span>
-                                        </div>
-                                        <p class="text-sm text-gray-400">Pre-Trial Conference</p>
-                                        <p class="text-sm text-gray-400">Courtroom 4C</p>
-                                    </div>
-                                    
-                                    <div class="border-l-4 border-pink-500 pl-4 py-1">
-                                        <div class="flex justify-between">
-                                            <p class="font-medium">Thompson vs. State</p>
-                                            <span class="text-sm text-gray-400">Oct 25</span>
-                                        </div>
-                                        <p class="text-sm text-gray-400">Preliminary Hearing</p>
-                                        <p class="text-sm text-gray-400">Courtroom 1A</p>
-                                    </div>
+                                <div class="space-y-4" id="upcomingHearings">
+                                    <!-- Upcoming hearings will be populated here -->
                                 </div>
                             </div>
                             
@@ -1769,11 +1454,7 @@
                                     <div>
                                         <label class="block text-gray-300 mb-2" for="eventCase">Related Case</label>
                                         <select id="eventCase" class="form-input w-full">
-                                            <option>None</option>
-                                            <option>LEA-2023-0789</option>
-                                            <option>LEA-2023-0782</option>
-                                            <option>LEA-2023-0775</option>
-                                            <option>LEA-2023-0768</option>
+                                            <option value="">None</option>
                                         </select>
                                     </div>
                                     
@@ -1797,7 +1478,7 @@
                                 
                                 <form id="profileSettingsForm" class="space-y-4">
                                     <div class="flex items-center mb-6">
-                                        <img src="{{ url_for('static', filename='user_lea.jpg') }}" alt="Profile" class="w-20 h-20 rounded-full mr-4">
+                                        <img src="https://picsum.photos/seed/user123/80/80.jpg" alt="Profile" class="w-20 h-20 rounded-full mr-4">
                                         <div>
                                             <button type="button" class="btn-primary px-4 py-2 rounded-lg">
                                                 Change Photo
@@ -2025,6 +1706,18 @@
         const calendarDays = document.getElementById('calendarDays');
         const todaySchedule = document.getElementById('todaySchedule');
         const researchResources = document.getElementById('researchResources');
+        
+        // Dashboard elements
+        const activeCasesCount = document.getElementById('activeCasesCount');
+        const activeCasesChange = document.getElementById('activeCasesChange');
+        const pendingReviewsCount = document.getElementById('pendingReviewsCount');
+        const evidenceFilesCount = document.getElementById('evidenceFilesCount');
+        const caseSuccessRate = document.getElementById('caseSuccessRate');
+        const recentActivity = document.getElementById('recentActivity');
+        const upcomingCourtDates = document.getElementById('upcomingCourtDates');
+        const upcomingHearings = document.getElementById('upcomingHearings');
+        const eventCase = document.getElementById('eventCase');
+        const evidenceCase = document.getElementById('evidenceCase');
         
         // Case data
         let cases = [
@@ -2307,12 +2000,16 @@
                     
                     // Initialize page-specific content
                     if (page === 'dashboard') {
+                        updateDashboardStats();
+                        updateRecentActivity();
+                        updateUpcomingCourtDates();
                         setTimeoutInitLEADashboardCharts();
                     } else if (page === 'reports') {
                         setTimeoutInitLEAReportsCharts();
                     } else if (page === 'calendar') {
                         renderCalendar();
                         renderTodaySchedule();
+                        renderUpcomingHearings();
                     } else if (page === 'evidence') {
                         renderEvidenceGrid();
                     } else if (page === 'research') {
@@ -2411,6 +2108,18 @@
                 // Save to localStorage
                 saveDataToStorage();
                 
+                // Update dashboard stats
+                updateDashboardStats();
+                
+                // Add to recent activity
+                addRecentActivity({
+                    icon: 'fas fa-edit',
+                    iconColor: 'text-blue-400',
+                    title: 'Case Status Updated',
+                    description: `Case #${caseId} status changed to ${newStatus}`,
+                    time: 'Just now'
+                });
+                
                 renderCaseTable();
                 caseModal.classList.remove('active');
                 showNotification('Case status updated successfully', 'success');
@@ -2466,6 +2175,21 @@
             
             // Save to localStorage
             saveDataToStorage();
+            
+            // Update dashboard stats
+            updateDashboardStats();
+            
+            // Add to recent activity
+            addRecentActivity({
+                icon: 'fas fa-plus-circle',
+                iconColor: 'text-green-400',
+                title: 'New Case Created',
+                description: `Case #${newCaseId}: ${title}`,
+                time: 'Just now'
+            });
+            
+            // Update case dropdowns
+            populateCaseDropdowns();
             
             // Re-render case table
             renderCaseTable();
@@ -2668,6 +2392,18 @@
                     // Save to localStorage
                     saveDataToStorage();
                     
+                    // Update dashboard stats
+                    updateDashboardStats();
+                    
+                    // Add to recent activity
+                    addRecentActivity({
+                        icon: 'fas fa-file-upload',
+                        iconColor: 'text-blue-400',
+                        title: 'Evidence Uploaded',
+                        description: `${files.length} file(s) added to Case #${caseId}`,
+                        time: 'Just now'
+                    });
+                    
                     // Re-render evidence grid
                     renderEvidenceGrid();
                     
@@ -2707,7 +2443,7 @@
             
             filteredCases.forEach(caseData => {
                 const row = document.createElement('tr');
-                row.className = 'table-row';
+                row.className = 'table-row fade-in';
                 
                 const priorityBadge = getPriorityBadge(caseData.priority);
                 const statusBadge = getStatusBadge(caseData.status);
@@ -2749,7 +2485,7 @@
             
             filteredEvidence.forEach(file => {
                 const fileElement = document.createElement('div');
-                fileElement.className = 'evidence-file';
+                fileElement.className = 'evidence-file fade-in';
                 
                 const iconClass = getFileIcon(file.type);
                 const statusBadge = file.status === 'Verified' 
@@ -2830,7 +2566,7 @@
             
             filteredResources.forEach(resource => {
                 const resourceElement = document.createElement('div');
-                resourceElement.className = 'border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors cursor-pointer';
+                resourceElement.className = 'border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors cursor-pointer fade-in';
                 
                 resourceElement.innerHTML = `
                     <div class="flex justify-between items-start">
@@ -2922,7 +2658,7 @@
             
             todayEvents.forEach(event => {
                 const eventElement = document.createElement('div');
-                eventElement.className = 'flex';
+                eventElement.className = 'flex fade-in';
                 
                 const isCourtEvent = event.title.includes('Hearing') || event.title.includes('Court');
                 const eventClass = isCourtEvent 
@@ -2941,6 +2677,230 @@
                 
                 todaySchedule.appendChild(eventElement);
             });
+        }
+        
+        // Render upcoming hearings
+        function renderUpcomingHearings() {
+            if (!upcomingHearings) return;
+            
+            // Get court events from calendar events
+            const courtEvents = calendarEvents.filter(event => 
+                event.title.includes('Hearing') || event.title.includes('Court')
+            );
+            
+            // Sort by date
+            courtEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // Take only the next 4 events
+            const upcomingEvents = courtEvents.slice(0, 4);
+            
+            upcomingHearings.innerHTML = '';
+            
+            upcomingEvents.forEach(event => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'border-l-4 border-pink-500 pl-4 py-1 fade-in';
+                
+                const eventDate = new Date(event.date);
+                const formattedDate = eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                
+                eventElement.innerHTML = `
+                    <div class="flex justify-between">
+                        <p class="font-medium">${event.title}</p>
+                        <span class="text-sm text-gray-400">${formattedDate}</span>
+                    </div>
+                    <p class="text-sm text-gray-400">${event.title.includes('Hearing') ? 'Hearing' : 'Court Appearance'}</p>
+                    <p class="text-sm text-gray-400">${event.location}</p>
+                `;
+                
+                upcomingHearings.appendChild(eventElement);
+            });
+        }
+        
+        // Update dashboard statistics
+        function updateDashboardStats() {
+            // Active Cases: not closed
+            const activeCases = cases.filter(c => c.status !== 'Closed').length;
+            activeCasesCount.textContent = activeCases;
+            
+            // Pending Reviews: status is 'Pending Review'
+            const pendingReviews = cases.filter(c => c.status === 'Pending Review').length;
+            pendingReviewsCount.textContent = pendingReviews;
+            
+            // Evidence Files: total evidence files
+            evidenceFilesCount.textContent = evidenceFiles.length;
+            
+            // Update progress bars
+            document.querySelector('.stat-card:nth-child(1) .progress-fill').style.width = `${Math.min(100, (activeCases / 40) * 100)}%`;
+            document.querySelector('.stat-card:nth-child(2) .progress-fill').style.width = `${Math.min(100, (pendingReviews / 20) * 100)}%`;
+            document.querySelector('.stat-card:nth-child(3) .progress-fill').style.width = `${Math.min(100, (evidenceFiles.length / 600) * 100)}%`;
+        }
+        
+        // Add recent activity
+        function addRecentActivity(activity) {
+            if (!recentActivity) return;
+            
+            const activityElement = document.createElement('div');
+            activityElement.className = 'flex items-start fade-in';
+            activityElement.innerHTML = `
+                <i class="${activity.icon} ${activity.iconColor} mt-1 mr-3" aria-hidden="true"></i>
+                <div class="flex-1">
+                    <p class="font-medium">${activity.title}</p>
+                    <p class="text-sm text-gray-400">${activity.description}</p>
+                    <p class="text-xs text-gray-500">${activity.time}</p>
+                </div>
+            `;
+            
+            // Add at the top
+            recentActivity.insertBefore(activityElement, recentActivity.firstChild);
+            
+            // Remove the last activity if there are more than 4
+            if (recentActivity.children.length > 4) {
+                recentActivity.removeChild(recentActivity.lastChild);
+            }
+        }
+        
+        // Update recent activity
+        function updateRecentActivity() {
+            if (!recentActivity) return;
+            
+            recentActivity.innerHTML = '';
+            
+            // Add sample activities
+            addRecentActivity({
+                icon: 'fas fa-plus-circle',
+                iconColor: 'text-green-400',
+                title: 'New Case Assigned',
+                description: 'Case #LEA-2023-0789: State vs. Thompson',
+                time: '2 hours ago'
+            });
+            
+            addRecentActivity({
+                icon: 'fas fa-file-upload',
+                iconColor: 'text-blue-400',
+                title: 'Evidence Uploaded',
+                description: '7 new files added to Case #LEA-2023-0782',
+                time: '5 hours ago'
+            });
+            
+            addRecentActivity({
+                icon: 'fas fa-gavel',
+                iconColor: 'text-yellow-400',
+                title: 'Hearing Scheduled',
+                description: 'Preliminary hearing for Case #LEA-2023-0775 set for Oct 20',
+                time: 'Yesterday'
+            });
+            
+            addRecentActivity({
+                icon: 'fas fa-check-circle',
+                iconColor: 'text-green-400',
+                title: 'Case Resolved',
+                description: 'Case #LEA-2023-0768: State vs. Wilson - Favorable verdict',
+                time: '2 days ago'
+            });
+        }
+        
+        // Update upcoming court dates
+        function updateUpcomingCourtDates() {
+            if (!upcomingCourtDates) return;
+            
+            // Get court events from calendar events
+            const courtEvents = calendarEvents.filter(event => 
+                event.title.includes('Hearing') || event.title.includes('Court')
+            );
+            
+            // Sort by date
+            courtEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // Take only the next 4 events
+            const upcomingEvents = courtEvents.slice(0, 4);
+            
+            upcomingCourtDates.innerHTML = '';
+            
+            upcomingEvents.forEach(event => {
+                const row = document.createElement('tr');
+                row.className = 'table-row fade-in';
+                
+                const eventDate = new Date(event.date);
+                const formattedDate = eventDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                
+                // Find case details if available
+                let caseTitle = event.title;
+                let caseType = event.title.includes('Hearing') ? 'Hearing' : 'Court Appearance';
+                
+                if (event.caseId) {
+                    const caseData = cases.find(c => c.caseId === event.caseId);
+                    if (caseData) {
+                        caseTitle = caseData.title;
+                        caseType = event.title.includes('Hearing') ? 'Preliminary Hearing' : 
+                                  event.title.includes('Arraignment') ? 'Arraignment' :
+                                  event.title.includes('Conference') ? 'Pre-Trial Conference' : 'Court Appearance';
+                    }
+                }
+                
+                row.innerHTML = `
+                    <td class="px-4 py-3">${formattedDate}</td>
+                    <td class="px-4 py-3">${event.caseId || 'N/A'}</td>
+                    <td class="px-4 py-3">${caseTitle}</td>
+                    <td class="px-4 py-3">${caseType}</td>
+                    <td class="px-4 py-3">${event.location}</td>
+                `;
+                
+                upcomingCourtDates.appendChild(row);
+            });
+        }
+        
+        // Populate case dropdowns
+        function populateCaseDropdowns() {
+            // Evidence upload modal
+            if (evidenceCase) {
+                const currentValue = evidenceCase.value;
+                evidenceCase.innerHTML = '<option value="">Select Case</option>';
+                
+                cases.forEach(caseData => {
+                    const option = document.createElement('option');
+                    option.value = caseData.caseId;
+                    option.textContent = `${caseData.caseId} - ${caseData.title}`;
+                    evidenceCase.appendChild(option);
+                });
+                
+                if (currentValue && cases.some(c => c.caseId === currentValue)) {
+                    evidenceCase.value = currentValue;
+                }
+            }
+            
+            // Calendar event form
+            if (eventCase) {
+                const currentValue = eventCase.value;
+                eventCase.innerHTML = '<option value="">None</option>';
+                
+                cases.forEach(caseData => {
+                    const option = document.createElement('option');
+                    option.value = caseData.caseId;
+                    option.textContent = caseData.caseId;
+                    eventCase.appendChild(option);
+                });
+                
+                if (currentValue && (currentValue === '' || cases.some(c => c.caseId === currentValue))) {
+                    eventCase.value = currentValue;
+                }
+            }
+            
+            // Evidence case filter
+            if (evidenceCaseFilter) {
+                const currentValue = evidenceCaseFilter.value;
+                evidenceCaseFilter.innerHTML = '<option>All Cases</option>';
+                
+                cases.forEach(caseData => {
+                    const option = document.createElement('option');
+                    option.value = caseData.caseId;
+                    option.textContent = caseData.caseId;
+                    evidenceCaseFilter.appendChild(option);
+                });
+                
+                if (currentValue && (currentValue === 'All Cases' || cases.some(c => c.caseId === currentValue))) {
+                    evidenceCaseFilter.value = currentValue;
+                }
+            }
         }
         
         // Get priority badge HTML
@@ -3017,12 +2977,18 @@
             const ctx = document.getElementById('caseDistributionChart');
             if (ctx && !ctx.chart) {
                 try {
+                    // Calculate case distribution
+                    const caseTypes = {};
+                    cases.forEach(caseData => {
+                        caseTypes[caseData.type] = (caseTypes[caseData.type] || 0) + 1;
+                    });
+                    
                     ctx.chart = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
-                            labels: ['Criminal', 'Civil', 'Family', 'Corporate'],
+                            labels: Object.keys(caseTypes),
                             datasets: [{
-                                data: [55, 25, 15, 5],
+                                data: Object.values(caseTypes),
                                 backgroundColor: [
                                     'rgba(236, 72, 153, 0.8)',
                                     'rgba(139, 92, 246, 0.8)',
@@ -3068,12 +3034,18 @@
             const ctx = document.getElementById('caseTypeChart');
             if (ctx && !ctx.chart) {
                 try {
+                    // Calculate case distribution
+                    const caseTypes = {};
+                    cases.forEach(caseData => {
+                        caseTypes[caseData.type] = (caseTypes[caseData.type] || 0) + 1;
+                    });
+                    
                     ctx.chart = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
-                            labels: ['Criminal', 'Civil', 'Family', 'Corporate'],
+                            labels: Object.keys(caseTypes),
                             datasets: [{
-                                data: [55, 25, 15, 5],
+                                data: Object.values(caseTypes),
                                 backgroundColor: [
                                     'rgba(236, 72, 153, 0.8)',
                                     'rgba(139, 92, 246, 0.8)',
@@ -3143,7 +3115,7 @@
                     date: eventDate,
                     time: eventTime,
                     location: eventLocation,
-                    caseId: eventCase === 'None' ? null : eventCase
+                    caseId: eventCase || null
                 };
                 
                 // Add to events array
@@ -3152,9 +3124,20 @@
                 // Save to localStorage
                 saveDataToStorage();
                 
+                // Add to recent activity
+                addRecentActivity({
+                    icon: 'fas fa-calendar-plus',
+                    iconColor: 'text-blue-400',
+                    title: 'Event Added',
+                    description: `${eventTitle} scheduled for ${eventDate}`,
+                    time: 'Just now'
+                });
+                
                 // Re-render calendar and schedule
                 renderCalendar();
                 renderTodaySchedule();
+                renderUpcomingHearings();
+                updateUpcomingCourtDates();
                 
                 // Reset form
                 addEventForm.reset();
@@ -3281,6 +3264,12 @@
             // Load data from localStorage
             loadDataFromStorage();
             
+            // Initialize dashboard
+            updateDashboardStats();
+            updateRecentActivity();
+            updateUpcomingCourtDates();
+            populateCaseDropdowns();
+            
             // Initialize charts
             initLEADashboardCharts();
             
@@ -3290,6 +3279,7 @@
             renderResearchResources();
             renderCalendar();
             renderTodaySchedule();
+            renderUpcomingHearings();
         });
     </script>
 </body>
